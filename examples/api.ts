@@ -51,6 +51,4 @@ const api = Zodine.builder()
   })
   .build();
 
-api.user.get.multiple({ query: { user_uids: [""] } });
-
 export default api;
