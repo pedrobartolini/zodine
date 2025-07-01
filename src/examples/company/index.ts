@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import restify from "../../restify";
+import Restify from "../../restify";
 import {
   userActivitySchema,
   userSchema,
@@ -10,89 +10,89 @@ import { companySchema } from "./schema";
 
 export const companyApi = {
   get: {
-    all: restify.get({
+    all: Restify.get({
       endpoint: "/companies",
-      responseSchema: restify.response(z.array(companySchema)),
+      responseSchema: Restify.response(z.array(companySchema)),
     }),
-    one: restify.get({
+    one: Restify.get({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string().optional() }),
-      responseSchema: restify.response(companySchema),
+      responseSchema: Restify.response(companySchema),
     }),
-    multiple: restify.get({
+    multiple: Restify.get({
       endpoint: "/companies/multiple",
       querySchema: z.object({ company_uids: z.string().optional() }),
-      responseSchema: restify.response(z.record(z.string(), companySchema)),
+      responseSchema: Restify.response(z.record(z.string(), companySchema)),
     }),
 
-    oneUsers: restify.get({
+    oneUsers: Restify.get({
       endpoint: "/companies/:company_uid/users",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.response(
+      responseSchema: Restify.response(
         z.array(userSchema),
         (data) => () => data.map(userSchemaMapper)
       ),
     }),
-    oneUsersActivity: restify.get({
+    oneUsersActivity: Restify.get({
       endpoint: "/companies/:company_uid/users/activity",
       pathSchema: z.object({ company_uid: z.string() }),
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(0) })),
-      responseSchema: restify.response(z.array(userActivitySchema)),
+      responseSchema: Restify.response(z.array(userActivitySchema)),
     }),
   },
 
   post: {
-    one: restify.post({
+    one: Restify.post({
       endpoint: "/companies",
       bodySchema: z.object({ name: z.string(), description: z.string() }),
-      responseSchema: restify.response(companySchema),
+      responseSchema: Restify.response(companySchema),
     }),
   },
 
   put: {
-    oneName: restify.put({
+    oneName: Restify.put({
       endpoint: "/companies/:company_uid/name",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ name: z.string() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
-    oneDescription: restify.put({
+    oneDescription: Restify.put({
       endpoint: "/companies/:company_uid/description",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ description: z.string() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
-    oneClientKey: restify.put({
+    oneClientKey: Restify.put({
       endpoint: "/companies/:company_uid/stock_client_key",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ stock_client_key: z.string().nullable() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
-    oneMqttKey: restify.put({
+    oneMqttKey: Restify.put({
       endpoint: "/companies/:company_uid/mqtt_key",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
-    oneImageAdd: restify.put({
+    oneImageAdd: Restify.put({
       endpoint: "/companies/:company_uid/image_add",
       pathSchema: z.object({ company_uid: z.string() }),
       formDataSchema: z.object({ image: z.instanceof(File) }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
-    oneImageRemove: restify.put({
+    oneImageRemove: Restify.put({
       endpoint: "/companies/:company_uid/image_remove",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
   },
 
   delete: {
-    one: restify.delete({
+    one: Restify.delete({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.response(z.string()),
+      responseSchema: Restify.response(z.string()),
     }),
   },
 };

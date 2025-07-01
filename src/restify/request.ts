@@ -1,88 +1,21 @@
-import { z } from "zod";
-
-import { ApiResponse, MapperError, NetworkError } from ".";
+import * as Errors from "./errors";
 import * as ResponseSchema from "./response";
+import * as Types from "./types";
 import * as Utils from "./utils";
 import * as Validation from "./validation";
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
-
-export type RequestSchema<TMethod extends HttpMethod = HttpMethod> = {
-  method: TMethod;
-  endpoint: string;
-  pathSchema?: z.ZodSchema<any>;
-  bodySchema?: z.ZodSchema<any>;
-  formDataSchema?: z.ZodSchema<any>;
-  querySchema?: z.ZodSchema<any>;
-  headersSchema?: z.ZodSchema<any>;
-  responseSchema: ResponseSchema.ResponseSchema<any, any, any>;
-  autoToast?: boolean;
-};
-
-type InferURLParam<T extends RequestSchema> =
-  T["pathSchema"] extends z.ZodSchema
-    ? { path: z.infer<T["pathSchema"]> }
-    : { path?: never };
-type InferBodyParam<T extends RequestSchema> =
-  T["bodySchema"] extends z.ZodSchema
-    ? { body: z.infer<T["bodySchema"]> }
-    : { body?: never };
-type InferFormDataParam<T extends RequestSchema> =
-  T["formDataSchema"] extends z.ZodSchema
-    ? { formData: z.infer<T["formDataSchema"]> }
-    : { formData?: never };
-type InferQueryParam<T extends RequestSchema> =
-  T["querySchema"] extends z.ZodSchema
-    ? { query: z.infer<T["querySchema"]> }
-    : { query?: never };
-type InferHeaderParam<T extends RequestSchema> =
-  T["headersSchema"] extends z.ZodSchema
-    ? { headers: z.infer<T["headersSchema"]> }
-    : { headers?: never };
-
-export type RequesterParams<T extends RequestSchema> = InferURLParam<T> &
-  InferBodyParam<T> &
-  InferFormDataParam<T> &
-  InferQueryParam<T> &
-  InferHeaderParam<T>;
-export type InferMapperParams<T extends RequestSchema> =
-  ResponseSchema.InferMapperArg<T["responseSchema"]> extends undefined
-    ? { map?: never }
-    : { map: ResponseSchema.InferMapperArg<T["responseSchema"]> };
-export type CallSignature<T extends RequestSchema> = InferURLParam<T> &
-  InferBodyParam<T> &
-  InferFormDataParam<T> &
-  InferQueryParam<T> &
-  InferHeaderParam<T> &
-  InferMapperParams<T>;
-
-export type RequesterFunction<
-  TSchema extends RequestSchema,
-  TError = string
-> = ((
-  params: CallSignature<TSchema>
-) => Promise<
-  ApiResponse<ResponseSchema.InferResult<TSchema["responseSchema"]>, TError>
->) & {
-  mapper?: ResponseSchema.InferMapper<TSchema["responseSchema"]>;
-};
-
-export type ToasterCallback<TError = any> = (
-  result: ApiResponse<any, TError>
-) => Promise<void> | void;
-
-export function create<TSchema extends RequestSchema, TError = string>(
+export function create<TSchema extends Types.RequestSchema, TError = string>(
   host: string,
   schema: TSchema,
-  defaultToaster: ToasterCallback<TError>,
+  defaultToaster: Types.ToasterCallback<TError>,
   autoToast: boolean,
   defaultHeaders: Record<string, string> | undefined,
   errorHandler: (response: Response) => Promise<TError>
-): RequesterFunction<TSchema, TError> {
-  const requester = async function (params: CallSignature<TSchema>) {
+): Types.RequesterFunction<TSchema, TError> {
+  const requester = async function (params: Types.CallSignature<TSchema>) {
     const promise = async (): Promise<
       Omit<
-        ApiResponse<
+        Types.ApiResponse<
           ResponseSchema.InferResult<TSchema["responseSchema"]>,
           TError
         >,
@@ -124,27 +57,23 @@ export function create<TSchema extends RequestSchema, TError = string>(
             )(params.map);
             return validatedData;
           } catch (error) {
-            return {
-              ok: false,
-              code: 500,
-              status: "mapper_error",
-              message: "Erro ao aplicar o mapper na resposta.",
-              error: error instanceof Error ? error : new Error(String(error)),
-            } as MapperError;
+            return Errors.createMapperError(
+              "Erro ao aplicar o mapper na resposta.",
+              error instanceof Error ? error : new Error(String(error))
+            );
           }
         }
 
         return validatedData;
       } catch (error) {
-        return {
-          status: "network_error",
-          message: "Não foi possível completar a requisição.",
-          error: error instanceof Error ? error : new Error(String(error)),
-        } as NetworkError;
+        return Errors.createNetworkError(
+          "Não foi possível completar a requisição.",
+          error instanceof Error ? error : new Error(String(error))
+        );
       }
     };
 
-    const result = (await promise()) as ApiResponse<
+    const result = (await promise()) as Types.ApiResponse<
       ResponseSchema.InferResult<TSchema["responseSchema"]>,
       TError
     >;
@@ -164,5 +93,5 @@ export function create<TSchema extends RequestSchema, TError = string>(
   };
 
   requester.mapper = schema.responseSchema.mapper;
-  return requester as RequesterFunction<TSchema, TError>;
+  return requester as Types.RequesterFunction<TSchema, TError>;
 }

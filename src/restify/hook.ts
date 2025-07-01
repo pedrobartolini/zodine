@@ -2,9 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import isEqual from "react-fast-compare";
 
-import { Errors } from ".";
-import * as RequestSchema from "./request";
 import * as ResponseSchema from "./response";
+import * as Types from "./types";
 
 function hasAnyUndefined(obj: any): boolean {
   if (obj === undefined) return true;
@@ -32,10 +31,7 @@ function useDeepCompareCallback<T extends (...args: any[]) => any>(
 type RefreshFunction = () => Promise<void>;
 type SetterFunction<T> = (newData: T) => void;
 
-export type HookResponse<
-  T extends RequestSchema.RequestSchema,
-  TError = string
-> =
+export type HookResponse<T extends Types.RequestSchema, TError = string> =
   | [
       ResponseSchema.InferResult<T["responseSchema"]>,
       null,
@@ -45,7 +41,7 @@ export type HookResponse<
     ]
   | [
       null,
-      Errors<TError>,
+      Types.Errors<TError>,
       false,
       RefreshFunction,
       SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>
@@ -58,14 +54,14 @@ export type HookResponse<
       SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>
     ];
 
-export function useHook<T extends RequestSchema.RequestSchema, TError = string>(
-  requester: RequestSchema.RequesterFunction<T, TError>,
-  callParams: RequestSchema.CallSignature<T>
+export function useHook<T extends Types.RequestSchema, TError = string>(
+  requester: Types.RequesterFunction<T, TError>,
+  callParams: Types.CallSignature<T>
 ): HookResponse<T, TError> {
   const [data, setData] = useState<ResponseSchema.InferResult<
     T["responseSchema"]
   > | null>(null);
-  const [error, setError] = useState<Errors<TError> | null>(null);
+  const [error, setError] = useState<Types.Errors<TError> | null>(null);
   const [loading, setLoading] = useState(true);
 
   const requestParams = useDeepCompareMemo({

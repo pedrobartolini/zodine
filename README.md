@@ -1,0 +1,250 @@
+# Restify - Type-Safe REST API Client Builder
+
+A modern, type-safe REST API client builder for TypeScript/JavaScript applications with React hooks integration, automatic validation, and intelligent error handling.
+
+## Features
+
+- 🔒 **Type Safety**: Full TypeScript support with compile-time validation
+- 🏗️ **Builder Pattern**: Fluent API for configuring clients
+- ⚡ **React Integration**: Built-in hooks for seamless React usage
+- 🛡️ **Validation**: Automatic request/response validation with Zod
+- 🔄 **Error Handling**: Comprehensive error types and utilities
+- 📝 **Intelligent Mapping**: Response transformation with type inference
+- 🎯 **Auto-completion**: Full IDE support with IntelliSense
+
+## Quick Start
+
+```typescript
+import Restify from "./restify";
+import { z } from "zod";
+
+// Define your API routes
+const routes = {
+  users: {
+    getAll: Restify.get({
+      endpoint: "/users",
+      responseSchema: Restify.response(
+        z.array(
+          z.object({
+            id: z.number(),
+            name: z.string(),
+            email: z.string(),
+          })
+        )
+      ),
+    }),
+
+    getById: Restify.get({
+      endpoint: "/users/:id",
+      pathSchema: z.object({ id: z.string() }),
+      responseSchema: Restify.response(
+        z.object({
+          id: z.number(),
+          name: z.string(),
+          email: z.string(),
+        })
+      ),
+    }),
+
+    create: Restify.post({
+      endpoint: "/users",
+      bodySchema: z.object({
+        name: z.string(),
+        email: z.string(),
+      }),
+      responseSchema: Restify.response(
+        z.object({
+          id: z.number(),
+          name: z.string(),
+          email: z.string(),
+        })
+      ),
+    }),
+  },
+};
+
+// Build your API client
+const api = Restify.builder()
+  .withHost("https://api.example.com")
+  .withRoutes(routes)
+  .withErrorHandler(async (response) => {
+    const error = await response.json();
+    return error.message || "Unknown error";
+  })
+  .withDefaultHeaders({
+    Authorization: "Bearer token",
+    "Content-Type": "application/json",
+  })
+  .withAutoToast(true)
+  .build();
+
+// Use the API
+const users = await api.users.getAll({});
+const user = await api.users.getById({ path: { id: "123" } });
+const newUser = await api.users.create({
+  body: { name: "John", email: "john@example.com" },
+});
+```
+
+## React Integration
+
+```typescript
+import { useHook } from "./restify";
+
+function UserProfile({ userId }: { userId: string }) {
+  const [user, error, loading, refresh, setUser] = api.users.getById.useHook({
+    path: { id: userId },
+  });
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!user) return <div>No user found</div>;
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+      <button onClick={refresh}>Refresh</button>
+    </div>
+  );
+}
+```
+
+## Project Structure
+
+```
+src/restify/
+├── index.ts          # Main exports and convenience API
+├── types.ts          # All TypeScript type definitions
+├── core.ts           # RestifyBuilder and core logic
+├── endpoints.ts      # Endpoint factory functions
+├── errors.ts         # Error handling utilities
+├── request.ts        # Request creation and execution
+├── response.ts       # Response schema utilities
+├── validation.ts     # Zod validation logic
+├── utils.ts          # HTTP utilities
+└── hook.ts           # React hooks integration
+```
+
+## Architecture Overview
+
+### Type System (`types.ts`)
+
+- Central location for all TypeScript types
+- Request/Response schemas
+- Error types
+- Function signatures
+
+### Core Builder (`core.ts`)
+
+- `RestifyBuilder` class with fluent interface
+- Compile-time validation of required configuration
+- Type-safe method generation
+
+### Endpoint Factories (`endpoints.ts`)
+
+- Helper functions for creating typed endpoints
+- Support for GET, POST, PUT, DELETE, PATCH
+- Type inference for method-specific schemas
+
+### Error Handling (`errors.ts`)
+
+- Structured error types
+- Error factory functions
+- Type guards for error checking
+
+### Validation (`validation.ts`)
+
+- Input parameter validation
+- Response data validation
+- Zod schema integration
+
+### React Integration (`hook.ts`)
+
+- `useHook` for reactive API calls
+- Automatic re-fetching on parameter changes
+- Loading states and error handling
+
+## Advanced Usage
+
+### Custom Response Mapping
+
+```typescript
+const userEndpoint = Restify.get({
+  endpoint: "/users/:id",
+  pathSchema: z.object({ id: z.string() }),
+  responseSchema: Restify.response(
+    z.object({
+      id: z.number(),
+      firstName: z.string(),
+      lastName: z.string(),
+    }),
+    // Mapper function
+    (data) => (options: { includeFullName: boolean }) => ({
+      ...data,
+      fullName: options.includeFullName
+        ? `${data.firstName} ${data.lastName}`
+        : undefined,
+    })
+  ),
+});
+
+// Usage with mapping
+const user = await api.users.getById({
+  path: { id: "123" },
+  map: { includeFullName: true },
+});
+```
+
+### Error Handling
+
+```typescript
+const result = await api.users.getById({ path: { id: "123" } });
+
+if (Restify.ErrorUtils.isSuccess(result)) {
+  console.log("User:", result.data);
+} else {
+  console.error("Error:", result.message);
+
+  // Handle specific error types
+  switch (result.status) {
+    case "validation_error":
+      console.log("Validation errors:", result.errors);
+      break;
+    case "network_error":
+      console.log("Network error:", result.error);
+      break;
+    case "api_error":
+      console.log("API error:", result.data);
+      break;
+  }
+}
+```
+
+### Custom Toasters
+
+```typescript
+const api = Restify.builder()
+  .withHost("https://api.example.com")
+  .withRoutes(routes)
+  .withErrorHandler(errorHandler)
+  .withDefaultToaster(async (result) => {
+    if (result.ok) {
+      toast.success("Operation successful!");
+    } else {
+      toast.error(result.message);
+    }
+  })
+  .withAutoToast(true)
+  .build();
+```
+
+## Benefits of the New Structure
+
+1. **Modularity**: Each concern is separated into its own file
+2. **Maintainability**: Clear separation of types, logic, and utilities
+3. **Extensibility**: Easy to add new features without affecting existing code
+4. **Type Safety**: Centralized types ensure consistency across the codebase
+5. **Developer Experience**: Better IDE support and auto-completion
+6. **Testing**: Each module can be tested independently
+7. **Documentation**: Self-documenting code with clear responsibilities

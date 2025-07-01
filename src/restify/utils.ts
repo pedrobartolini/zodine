@@ -1,10 +1,10 @@
-import { CustomError, NetworkError } from ".";
-import * as RequestSchema from "./request";
+import * as Errors from "./errors";
+import * as Types from "./types";
 
-export function buildUrl<T extends RequestSchema.RequestSchema>(
+export function buildUrl<T extends Types.RequestSchema>(
   host: string,
   schema: T,
-  params: RequestSchema.RequesterParams<T>
+  params: Types.RequesterParams<T>
 ): string {
   let url = schema.endpoint;
   if (schema.pathSchema && params.path) {
@@ -22,12 +22,12 @@ export function buildUrl<T extends RequestSchema.RequestSchema>(
   return `${host}${url}${queryString}`;
 }
 
-export async function executeRequest<T extends RequestSchema.RequestSchema>(
+export async function executeRequest<T extends Types.RequestSchema>(
   url: string,
   schema: T,
-  params: RequestSchema.RequesterParams<T>,
+  params: Types.RequesterParams<T>,
   defaultHeaders?: Record<string, string>
-): Promise<Response | NetworkError> {
+): Promise<Response | Types.NetworkError> {
   const headers = new Headers({ ...defaultHeaders });
   if (schema.headersSchema && params.headers) {
     for (const [key, value] of Object.entries(
@@ -65,20 +65,17 @@ export async function executeRequest<T extends RequestSchema.RequestSchema>(
       body: body,
     });
   } catch (error) {
-    return {
-      ok: false,
-      code: 500,
-      status: "network_error",
-      message: "Não foi possível completar a requisição.",
-      error: error instanceof Error ? error : new Error(String(error)),
-    };
+    return Errors.createNetworkError(
+      "Não foi possível completar a requisição.",
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 }
 
 export async function handleErrorResponse<TError = string>(
   response: Response,
   errorHandler?: (response: Response) => Promise<TError>
-): Promise<CustomError<TError>> {
+): Promise<Types.CustomError<TError>> {
   let data: TError;
   let message: string;
 
@@ -105,11 +102,5 @@ export async function handleErrorResponse<TError = string>(
     }
   }
 
-  return {
-    ok: false,
-    code: response.status,
-    status: "api_error",
-    message,
-    data,
-  };
+  return Errors.createCustomError(message, data, response.status);
 }
