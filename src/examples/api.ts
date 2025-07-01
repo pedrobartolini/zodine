@@ -1,4 +1,4 @@
-import Restify from "../restify";
+import Zodine from "../zodine";
 import { companyApi } from "./company";
 import { userApi } from "./user";
 
@@ -10,7 +10,7 @@ type ApiError = {
 };
 
 // Build the API client with the new structured approach
-const api = Restify.builder()
+const api = Zodine.builder()
   .withHost("https://api.example.com")
   .withErrorHandler(async (response): Promise<ApiError> => {
     const data = await response.json();

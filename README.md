@@ -1,4 +1,4 @@
-# Restify - Type-Safe REST API Client Builder
+# Zodine - Type-Safe REST API Client Builder
 
 A modern, type-safe REST API client builder for TypeScript/JavaScript applications with React hooks integration, automatic validation, and intelligent error handling.
 
@@ -15,15 +15,15 @@ A modern, type-safe REST API client builder for TypeScript/JavaScript applicatio
 ## Quick Start
 
 ```typescript
-import Restify from "./restify";
+import Zodine from "./zodine";
 import { z } from "zod";
 
 // Define your API routes
 const routes = {
   users: {
-    getAll: Restify.get({
+    getAll: Zodine.get({
       endpoint: "/users",
-      responseSchema: Restify.response(
+      responseSchema: Zodine.response(
         z.array(
           z.object({
             id: z.number(),
@@ -34,10 +34,10 @@ const routes = {
       ),
     }),
 
-    getById: Restify.get({
+    getById: Zodine.get({
       endpoint: "/users/:id",
       pathSchema: z.object({ id: z.string() }),
-      responseSchema: Restify.response(
+      responseSchema: Zodine.response(
         z.object({
           id: z.number(),
           name: z.string(),
@@ -46,13 +46,13 @@ const routes = {
       ),
     }),
 
-    create: Restify.post({
+    create: Zodine.post({
       endpoint: "/users",
       bodySchema: z.object({
         name: z.string(),
         email: z.string(),
       }),
-      responseSchema: Restify.response(
+      responseSchema: Zodine.response(
         z.object({
           id: z.number(),
           name: z.string(),
@@ -64,7 +64,7 @@ const routes = {
 };
 
 // Build your API client
-const api = Restify.builder()
+const api = Zodine.builder()
   .withHost("https://api.example.com")
   .withRoutes(routes)
   .withErrorHandler(async (response) => {
@@ -113,10 +113,10 @@ function UserProfile({ userId }: { userId: string }) {
 ## Project Structure
 
 ```
-src/restify/
+src/zodine/
 ├── index.ts          # Main exports and convenience API
 ├── types.ts          # All TypeScript type definitions
-├── core.ts           # RestifyBuilder and core logic
+├── core.ts           # ZodineBuilder and core logic
 ├── endpoints.ts      # Endpoint factory functions
 ├── errors.ts         # Error handling utilities
 ├── request.ts        # Request creation and execution
@@ -137,7 +137,7 @@ src/restify/
 
 ### Core Builder (`core.ts`)
 
-- `RestifyBuilder` class with fluent interface
+- `ZodineBuilder` class with fluent interface
 - Compile-time validation of required configuration
 - Type-safe method generation
 
@@ -170,10 +170,10 @@ src/restify/
 ### Custom Response Mapping
 
 ```typescript
-const userEndpoint = Restify.get({
+const userEndpoint = Zodine.get({
   endpoint: "/users/:id",
   pathSchema: z.object({ id: z.string() }),
-  responseSchema: Restify.response(
+  responseSchema: Zodine.response(
     z.object({
       id: z.number(),
       firstName: z.string(),
@@ -201,7 +201,7 @@ const user = await api.users.getById({
 ```typescript
 const result = await api.users.getById({ path: { id: "123" } });
 
-if (Restify.ErrorUtils.isSuccess(result)) {
+if (Zodine.ErrorUtils.isSuccess(result)) {
   console.log("User:", result.data);
 } else {
   console.error("Error:", result.message);
@@ -224,7 +224,7 @@ if (Restify.ErrorUtils.isSuccess(result)) {
 ### Custom Toasters
 
 ```typescript
-const api = Restify.builder()
+const api = Zodine.builder()
   .withHost("https://api.example.com")
   .withRoutes(routes)
   .withErrorHandler(errorHandler)

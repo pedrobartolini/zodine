@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import Restify from "../../restify";
+import Zodine from "../../zodine";
 import {
   userActivitySchema,
   userSchema,
@@ -10,89 +10,89 @@ import { companySchema } from "./schema";
 
 export const companyApi = {
   get: {
-    all: Restify.get({
+    all: Zodine.get({
       endpoint: "/companies",
-      responseSchema: Restify.response(z.array(companySchema)),
+      responseSchema: Zodine.response(z.array(companySchema)),
     }),
-    one: Restify.get({
+    one: Zodine.get({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string().optional() }),
-      responseSchema: Restify.response(companySchema),
+      responseSchema: Zodine.response(companySchema),
     }),
-    multiple: Restify.get({
+    multiple: Zodine.get({
       endpoint: "/companies/multiple",
       querySchema: z.object({ company_uids: z.string().optional() }),
-      responseSchema: Restify.response(z.record(z.string(), companySchema)),
+      responseSchema: Zodine.response(z.record(z.string(), companySchema)),
     }),
 
-    oneUsers: Restify.get({
+    oneUsers: Zodine.get({
       endpoint: "/companies/:company_uid/users",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: Restify.response(
+      responseSchema: Zodine.response(
         z.array(userSchema),
         (data) => () => data.map(userSchemaMapper)
       ),
     }),
-    oneUsersActivity: Restify.get({
+    oneUsersActivity: Zodine.get({
       endpoint: "/companies/:company_uid/users/activity",
       pathSchema: z.object({ company_uid: z.string() }),
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(0) })),
-      responseSchema: Restify.response(z.array(userActivitySchema)),
+      responseSchema: Zodine.response(z.array(userActivitySchema)),
     }),
   },
 
   post: {
-    one: Restify.post({
+    one: Zodine.post({
       endpoint: "/companies",
       bodySchema: z.object({ name: z.string(), description: z.string() }),
-      responseSchema: Restify.response(companySchema),
+      responseSchema: Zodine.response(companySchema),
     }),
   },
 
   put: {
-    oneName: Restify.put({
+    oneName: Zodine.put({
       endpoint: "/companies/:company_uid/name",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ name: z.string() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
-    oneDescription: Restify.put({
+    oneDescription: Zodine.put({
       endpoint: "/companies/:company_uid/description",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ description: z.string() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
-    oneClientKey: Restify.put({
+    oneClientKey: Zodine.put({
       endpoint: "/companies/:company_uid/stock_client_key",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ stock_client_key: z.string().nullable() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
-    oneMqttKey: Restify.put({
+    oneMqttKey: Zodine.put({
       endpoint: "/companies/:company_uid/mqtt_key",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
-    oneImageAdd: Restify.put({
+    oneImageAdd: Zodine.put({
       endpoint: "/companies/:company_uid/image_add",
       pathSchema: z.object({ company_uid: z.string() }),
       formDataSchema: z.object({ image: z.instanceof(File) }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
-    oneImageRemove: Restify.put({
+    oneImageRemove: Zodine.put({
       endpoint: "/companies/:company_uid/image_remove",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
   },
 
   delete: {
-    one: Restify.delete({
+    one: Zodine.delete({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: Restify.response(z.string()),
+      responseSchema: Zodine.response(z.string()),
     }),
   },
 };

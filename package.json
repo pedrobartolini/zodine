@@ -1,14 +1,14 @@
 {
-  "name": "restify",
+  "name": "zodine",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pedrobartolini/restify.git"
+    "url": "git+https://github.com/pedrobartolini/zodine.git"
   },
   "bugs": {
-    "url": "https://github.com/pedrobartolini/restify/issues"
+    "url": "https://github.com/pedrobartolini/zodine/issues"
   },
-  "homepage": "https://github.com/pedrobartolini/restify#readme",
+  "homepage": "https://github.com/pedrobartolini/zodine#readme",
   "type": "module",
   "dependencies": {
     "react": "^19.1.0",

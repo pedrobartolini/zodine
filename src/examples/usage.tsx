@@ -1,4 +1,4 @@
-import { ErrorUtils } from "../restify";
+import { ErrorUtils } from "../zodine";
 import type { ApiError } from "./api";
 import api from "./api";
 import { AccessLevel } from "./user/schema";

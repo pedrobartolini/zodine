@@ -81,7 +81,7 @@ function createNestedMethods<TError = string>(
 /**
  * Builder class for creating API methods with proper type inference and compile-time validation
  */
-export class RestifyBuilder<
+export class ZodineBuilder<
   TRoutes extends Types.RouteDefinitions = {},
   TError = string,
   THasHost extends boolean = false,
@@ -100,8 +100,8 @@ export class RestifyBuilder<
    */
   withHost(
     host: string
-  ): RestifyBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler> {
-    const builder = new RestifyBuilder<
+  ): ZodineBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<
       TRoutes,
       TError,
       true,
@@ -122,8 +122,8 @@ export class RestifyBuilder<
    */
   withRoutes<T extends Types.RouteDefinitions>(
     routes: T
-  ): RestifyBuilder<T, TError, THasHost, true, THasErrorHandler> {
-    const builder = new RestifyBuilder<
+  ): ZodineBuilder<T, TError, THasHost, true, THasErrorHandler> {
+    const builder = new ZodineBuilder<
       T,
       TError,
       THasHost,
@@ -144,14 +144,8 @@ export class RestifyBuilder<
    */
   withErrorHandler<T>(
     errorHandler: (response: Response) => Promise<T>
-  ): RestifyBuilder<TRoutes, T, THasHost, THasRoutes, true> {
-    const builder = new RestifyBuilder<
-      TRoutes,
-      T,
-      THasHost,
-      THasRoutes,
-      true
-    >();
+  ): ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true> {
+    const builder = new ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true>();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.defaultToaster = undefined; // Reset toaster as error type changed
@@ -166,8 +160,8 @@ export class RestifyBuilder<
    */
   withDefaultToaster(
     toaster: Types.ToasterCallback<TError>
-  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new RestifyBuilder<
+  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<
       TRoutes,
       TError,
       THasHost,
@@ -188,8 +182,8 @@ export class RestifyBuilder<
    */
   withAutoToast(
     autoToast: boolean = true
-  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new RestifyBuilder<
+  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<
       TRoutes,
       TError,
       THasHost,
@@ -210,8 +204,8 @@ export class RestifyBuilder<
    */
   withDefaultHeaders(
     headers: Record<string, string>
-  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new RestifyBuilder<
+  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<
       TRoutes,
       TError,
       THasHost,

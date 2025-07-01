@@ -1,5 +1,5 @@
 /**
- * Restify - A type-safe, composable REST API client builder
+ * Zodine - A type-safe, composable REST API client builder
  *
  * Provides:
  * - Type-safe API definitions with Zod validation
@@ -10,7 +10,7 @@
  */
 
 // Core exports
-export { RestifyBuilder } from "./core";
+export { ZodineBuilder } from "./core";
 export type { GenerateApiMethods } from "./core";
 
 // Type exports
@@ -54,19 +54,19 @@ export { useHook } from "./hook";
 export type { HookResponse } from "./hook";
 
 import { z } from "zod";
-// Import required modules for Restify object
-import { RestifyBuilder } from "./core";
+// Import required modules for Zodine object
+import { ZodineBuilder } from "./core";
 import { Endpoints } from "./endpoints";
 import * as ResponseUtils from "./response";
 
 /**
  * Convenience API for common usage patterns
  */
-export const Restify = {
+export const Zodine = {
   /**
    * Create a new API client builder
    */
-  builder: () => new RestifyBuilder(),
+  builder: () => new ZodineBuilder(),
 
   /**
    * Response schema factory
@@ -108,4 +108,4 @@ export const Restify = {
 /**
  * Default export for simple usage
  */
-export default Restify;
+export default Zodine;
