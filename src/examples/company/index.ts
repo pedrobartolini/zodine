@@ -10,102 +10,89 @@ import { companySchema } from "./schema";
 
 export const companyApi = {
   get: {
-    all: {
+    all: restify.get({
       endpoint: "/companies",
-      method: "GET" as const,
       responseSchema: restify.schema(z.array(companySchema)),
-    },
-    one: {
+    }),
+    one: restify.get({
       endpoint: "/companies/:company_uid",
-      method: "GET" as const,
       pathSchema: z.object({ company_uid: z.string().optional() }),
       responseSchema: restify.schema(companySchema),
-    },
-    multiple: {
+    }),
+    multiple: restify.get({
       endpoint: "/companies/multiple",
-      method: "GET" as const,
       querySchema: z.object({ company_uids: z.string().optional() }),
       responseSchema: restify.schema(z.record(z.string(), companySchema)),
-    },
+    }),
 
-    oneUsers: {
+    oneUsers: restify.get({
       endpoint: "/companies/:company_uid/users",
-      method: "GET" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       responseSchema: restify.schema(
         z.array(userSchema),
         (data) => () => data.map(userSchemaMapper)
       ),
-    },
-    oneUsersActivity: {
+    }),
+    oneUsersActivity: restify.get({
       endpoint: "/companies/:company_uid/users/activity",
-      method: "GET" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(0) })),
       responseSchema: restify.schema(z.array(userActivitySchema)),
-    },
+    }),
   },
 
   post: {
-    one: {
+    one: restify.post({
       endpoint: "/companies",
-      method: "POST" as const,
       bodySchema: z.object({ name: z.string(), description: z.string() }),
       responseSchema: restify.schema(companySchema),
-    },
+    }),
   },
 
   put: {
-    oneName: {
+    oneName: restify.put({
       endpoint: "/companies/:company_uid/name",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ name: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneDescription: {
+    }),
+    oneDescription: restify.put({
       endpoint: "/companies/:company_uid/description",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ description: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneClientKey: {
+    }),
+    oneClientKey: restify.put({
       endpoint: "/companies/:company_uid/stock_client_key",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ stock_client_key: z.string().nullable() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneMqttKey: {
+    }),
+    oneMqttKey: restify.put({
       endpoint: "/companies/:company_uid/mqtt_key",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneImageAdd: {
+    }),
+    oneImageAdd: restify.put({
       endpoint: "/companies/:company_uid/image_add",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       formDataSchema: z.object({ image: z.instanceof(File) }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneImageRemove: {
+    }),
+    oneImageRemove: restify.put({
       endpoint: "/companies/:company_uid/image_remove",
-      method: "PUT" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
+    }),
   },
 
   delete: {
-    one: {
+    one: restify.delete({
       endpoint: "/companies/:company_uid",
-      method: "DELETE" as const,
       pathSchema: z.object({ company_uid: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
+    }),
   },
 };

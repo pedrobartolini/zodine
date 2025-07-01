@@ -50,11 +50,11 @@ export type ApiResponse<TData, TError = string> = (
 ) & { toast: () => void };
 
 export type RouteDefinitions = {
-  [key: string]: RequestSchema.RequestSchema | RouteDefinitions;
+  [key: string]: RequestSchema.RequestSchema<any> | RouteDefinitions;
 };
 
 type RouteFunction<
-  T extends RequestSchema.RequestSchema,
+  T extends RequestSchema.RequestSchema<any>,
   TError = string
 > = RequestSchema.RequesterFunction<T, TError> & {
   useHook: (
@@ -63,7 +63,7 @@ type RouteFunction<
 };
 
 type GenerateApiMethods<T extends RouteDefinitions, TError = string> = {
-  [K in keyof T]: T[K] extends RequestSchema.RequestSchema
+  [K in keyof T]: T[K] extends RequestSchema.RequestSchema<any>
     ? RouteFunction<T[K], TError>
     : T[K] extends RouteDefinitions
     ? GenerateApiMethods<T[K], TError>
@@ -254,7 +254,48 @@ export class RestifyBuilder<
   }
 }
 
+// Helper functions for creating API definitions with proper type inference
+export const createGetEndpoint = <
+  T extends Omit<RequestSchema.RequestSchema<"GET">, "method">
+>(
+  config: T
+): T & { method: "GET" } => ({
+  ...config,
+  method: "GET" as const,
+});
+
+export const createPostEndpoint = <
+  T extends Omit<RequestSchema.RequestSchema<"POST">, "method">
+>(
+  config: T
+): T & { method: "POST" } => ({
+  ...config,
+  method: "POST" as const,
+});
+
+export const createPutEndpoint = <
+  T extends Omit<RequestSchema.RequestSchema<"PUT">, "method">
+>(
+  config: T
+): T & { method: "PUT" } => ({
+  ...config,
+  method: "PUT" as const,
+});
+
+export const createDeleteEndpoint = <
+  T extends Omit<RequestSchema.RequestSchema<"DELETE">, "method">
+>(
+  config: T
+): T & { method: "DELETE" } => ({
+  ...config,
+  method: "DELETE" as const,
+});
+
 export default {
   builder: () => new RestifyBuilder(),
   schema: ResponseSchema.create,
+  get: createGetEndpoint,
+  post: createPostEndpoint,
+  put: createPutEndpoint,
+  delete: createDeleteEndpoint,
 };

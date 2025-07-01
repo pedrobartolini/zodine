@@ -13,33 +13,29 @@ import {
 
 export const userApi = {
   get: {
-    all: {
+    all: restify.get({
       endpoint: "/users",
-      method: "GET" as const,
       responseSchema: restify.schema(
         z.array(userSchema),
         (data) => () => data.map(userSchemaMapper)
       ),
-    },
-    allActivity: {
+    }),
+    allActivity: restify.get({
       endpoint: "/users/activity",
-      method: "GET" as const,
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(1) })),
       responseSchema: restify.schema(z.array(userActivitySchema)),
-    },
-    me: {
+    }),
+    me: restify.get({
       endpoint: "/users/me",
-      method: "GET" as const,
       responseSchema: restify.schema(
         userSchema,
         (data) => () => userSchemaMapper(data)
       ),
-    },
-    multiple: {
+    }),
+    multiple: restify.get({
       endpoint: "/users/multiple",
-      method: "GET" as const,
       querySchema: z.object({ user_uids: z.string().optional() }),
       responseSchema: restify.schema(
         z.record(z.string(), userSchema),
@@ -51,10 +47,9 @@ export const userApi = {
           return users;
         }
       ),
-    },
-    meWithCompany: {
+    }),
+    meWithCompany: restify.get({
       endpoint: "/users/me_with_company",
-      method: "GET" as const,
       responseSchema: restify.schema(
         z.object({ user: userSchema, company: companySchema }),
         (data) => () => ({
@@ -62,46 +57,41 @@ export const userApi = {
           company: data.company,
         })
       ),
-    },
-    one: {
+    }),
+    one: restify.get({
       endpoint: "/users/:user_uid",
-      method: "GET" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       responseSchema: restify.schema(
         userSchema,
         (data) => () => userSchemaMapper(data)
       ),
-    },
-    oneActivity: {
+    }),
+    oneActivity: restify.get({
       endpoint: "/users/:user_uid/activity",
-      method: "GET" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(1) })),
       responseSchema: restify.schema(z.array(userActivitySchema)),
-    },
-    oneSessions: {
+    }),
+    oneSessions: restify.get({
       endpoint: "/users/:user_uid/sessions",
-      method: "GET" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       responseSchema: restify.schema(
         z.array(userSessionSchema),
         (data) => () => data.map(userSessionSchemaMapper)
       ),
-    },
-    oneUiPresets: {
+    }),
+    oneUiPresets: restify.get({
       endpoint: "/users/:user_uid/ui_presets",
-      method: "GET" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       responseSchema: restify.schema(z.array(userUiPresetSchema)),
-    },
+    }),
   },
 
   post: {
-    one: {
+    one: restify.post({
       endpoint: "/users",
-      method: "POST" as const,
       bodySchema: z.object({
         name: z.string(),
         email: z.string(),
@@ -113,96 +103,84 @@ export const userApi = {
         userSchema,
         (data) => () => userSchemaMapper(data)
       ),
-    },
-    oneUiPreset: {
+    }),
+    oneUiPreset: restify.post({
       endpoint: "/users/:user_uid/ui_presets",
-      method: "POST" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({
         name: z.string(),
         preset_json: z.record(z.any()),
       }),
       responseSchema: restify.schema(userUiPresetSchema),
-    },
+    }),
   },
 
   put: {
-    oneName: {
+    oneName: restify.put({
       endpoint: "/users/:user_uid",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({ name: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneAccessLevel: {
+    }),
+    oneAccessLevel: restify.put({
       endpoint: "/users/:user_uid/access_level",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({ access_level: userAccessLevelSchema }),
       responseSchema: restify.schema(z.string()),
-    },
-    onePassword: {
+    }),
+    onePassword: restify.put({
       endpoint: "/users/:user_uid/password",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({ password: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneEnabled: {
+    }),
+    oneEnabled: restify.put({
       endpoint: "/users/:user_uid/enabled",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({ enabled: z.boolean() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneUiPreset: {
+    }),
+    oneUiPreset: restify.put({
       endpoint: "/users/:user_uid/ui_presets",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       bodySchema: z.object({ preset_json: z.record(z.any()) }),
       responseSchema: restify.schema(userUiPresetSchema),
-    },
-    oneImageAdd: {
+    }),
+    oneImageAdd: restify.put({
       endpoint: "/users/:user_uid/image_add",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       formDataSchema: z.object({ image: z.instanceof(File) }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneImageRemove: {
+    }),
+    oneImageRemove: restify.put({
       endpoint: "/users/:user_uid/image_remove",
-      method: "PUT" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
+    }),
   },
 
   delete: {
-    one: {
+    one: restify.delete({
       endpoint: "/users/:user_uid",
-      method: "DELETE" as const,
       pathSchema: z.object({ user_uid: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    oneUiPreset: {
+    }),
+    oneUiPreset: restify.delete({
       endpoint: "/users/:user_uid/ui_presets/:preset_name",
-      method: "DELETE" as const,
       pathSchema: z.object({ user_uid: z.string(), preset_name: z.string() }),
       responseSchema: restify.schema(z.string()),
-    },
-    meLogout: {
+    }),
+    meLogout: restify.delete({
       endpoint: "/users/me/sessions/current",
-      method: "DELETE" as const,
       responseSchema: restify.schema(z.string()),
-    },
-    oneSession: {
+    }),
+    oneSession: restify.delete({
       endpoint: "/users/:user_uid/sessions/:session_token",
-      method: "DELETE" as const,
       pathSchema: z.object({
         user_uid: z.string(),
         session_token: z.string(),
       }),
       responseSchema: restify.schema(z.string()),
-    },
+    }),
   },
 };

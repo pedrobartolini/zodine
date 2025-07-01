@@ -5,8 +5,10 @@ import * as ResponseSchema from "./response";
 import * as Utils from "./utils";
 import * as Validation from "./validation";
 
-export type RequestSchema = {
-  method: "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+
+export type RequestSchema<TMethod extends HttpMethod = HttpMethod> = {
+  method: TMethod;
   endpoint: string;
   pathSchema?: z.ZodSchema<any>;
   bodySchema?: z.ZodSchema<any>;
