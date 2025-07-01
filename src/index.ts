@@ -1,57 +1,5 @@
-/**
- * Zodine - A type-safe, composable REST API client builder
- *
- * Provides:
- * - Type-safe API definitions with Zod validation
- * - Builder pattern for configuration
- * - React hooks integration
- * - Automatic error handling and response mapping
- * - Compile-time validation of required configurations
- */
-
-// Core exports
-export { ZodineBuilder } from "./core";
-export type { GenerateApiMethods } from "./core";
-
-// Type exports
-export type {
-  ApiResponse,
-  CallSignature,
-  CustomError,
-  HttpMethod,
-  MapperError,
-  NetworkError,
-  RequesterFunction,
-  RequesterParams,
-  RequestSchema,
-  RouteDefinitions,
-  Success,
-  ToasterCallback,
-  ValidationError,
-} from "./types";
-
 // Import the Errors type separately to avoid naming conflict
 export type { Errors } from "./types";
-
-// Response schema utilities
-export * as ResponseUtils from "./response";
-
-// Endpoint factories
-export {
-  createDeleteEndpoint,
-  createGetEndpoint,
-  createPatchEndpoint,
-  createPostEndpoint,
-  createPutEndpoint,
-  Endpoints,
-} from "./endpoints";
-
-// Error utilities
-export * as ErrorUtils from "./errors";
-
-// Hook for React integration
-export { useHook } from "./hook";
-export type { HookResponse } from "./hook";
 
 // Import required modules for Zodine object
 import { ZodineBuilder } from "./core";
@@ -61,7 +9,7 @@ import * as ResponseUtils from "./response";
 /**
  * Convenience API for common usage patterns
  */
-export const Zodine = {
+export default {
   /**
    * Create a new API client builder
    */
@@ -96,9 +44,4 @@ export const Zodine = {
    * Create a new PATCH endpoint
    */
   patch: Endpoints.patch,
-} as const;
-
-/**
- * Default export for simple usage
- */
-export default Zodine;
+};
