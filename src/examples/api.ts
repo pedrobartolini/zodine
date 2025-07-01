@@ -1,3 +1,4 @@
+import { z } from "zod";
 import Zodine from "../zodine";
 import companyRoutes from "./company";
 import userRoutes from "./user";
@@ -32,7 +33,19 @@ const api = Zodine.builder()
     "Content-Type": "application/json",
     Accept: "application/json",
   })
-  .withRoutes({ user: userRoutes, company: companyRoutes })
+  .withRoutes({
+    user: userRoutes,
+    company: companyRoutes,
+
+    login: Zodine.post({
+      endpoint: "/auth/login",
+      bodySchema: z.object({
+        email: z.string().email(),
+        password: z.string().min(6).max(100),
+      }),
+      responseSchema: Zodine.response(z.string()), // session token
+    }),
+  })
   .build();
 
 export default api;
