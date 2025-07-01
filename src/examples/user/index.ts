@@ -36,7 +36,14 @@ export default {
     }),
     multiple: Zodine.get({
       endpoint: "/users/multiple",
-      querySchema: z.object({ user_uids: z.string().optional() }),
+      querySchema: z.object({
+        user_uids: z
+          .string()
+          .array()
+          .transform((val) => val.join(",")),
+      }),
+
+      // querySchema: z.object({ user_uids: z.string().optional() }),
       responseSchema: Zodine.response(
         z.record(z.string(), userSchema),
         (data) => () => {

@@ -21,6 +21,7 @@ const api = Zodine.builder()
   .withDefaultToaster((result) => {
     if (result.status === "api_error") {
       const { message, code, details } = result.data;
+
       console.log(
         `Error ${code}: ${message} - ${details.join(
           ", "
@@ -51,5 +52,7 @@ const api = Zodine.builder()
     }),
   })
   .build();
+
+api.user.get.multiple({ query: { user_uids: [""] } });
 
 export default api;

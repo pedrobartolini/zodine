@@ -22,27 +22,27 @@ export type RouteDefinitions = {
 // Parameter inference types
 type InferURLParam<T extends RequestSchema> =
   T["pathSchema"] extends z.ZodSchema
-    ? { path: z.infer<T["pathSchema"]> }
+    ? { path: z.input<T["pathSchema"]> }
     : { path?: never };
 
 type InferBodyParam<T extends RequestSchema> =
   T["bodySchema"] extends z.ZodSchema
-    ? { body: z.infer<T["bodySchema"]> }
+    ? { body: z.input<T["bodySchema"]> }
     : { body?: never };
 
 type InferFormDataParam<T extends RequestSchema> =
   T["formDataSchema"] extends z.ZodSchema
-    ? { formData: z.infer<T["formDataSchema"]> }
+    ? { formData: z.input<T["formDataSchema"]> }
     : { formData?: never };
 
 type InferQueryParam<T extends RequestSchema> =
   T["querySchema"] extends z.ZodSchema
-    ? { query: z.infer<T["querySchema"]> }
+    ? { query: z.input<T["querySchema"]> }
     : { query?: never };
 
 type InferHeaderParam<T extends RequestSchema> =
   T["headersSchema"] extends z.ZodSchema
-    ? { headers: z.infer<T["headersSchema"]> }
+    ? { headers: z.input<T["headersSchema"]> }
     : { headers?: never };
 
 export type RequesterParams<T extends RequestSchema> = InferURLParam<T> &
