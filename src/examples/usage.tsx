@@ -3,14 +3,8 @@ import api from "./api";
 import { AccessLevel } from "./user/schema";
 
 function ExampleComponent() {
-  // Hook mode with destructured return values
-  const [
-    allUsers,
-    allUsersError,
-    allUsersLoading,
-    allUsersRefetch,
-    setAllUsers,
-  ] = api.user.get.all.useHook({});
+  const [allUsers, allUsersError, allUsersLoading, allUsersRefetch] =
+    api.user.get.all.useHook({});
 
   // Hook mode with path parameters
   const [oneUser, oneUserError, oneUserLoading, oneUserRefetch, setOneUser] =
@@ -52,7 +46,7 @@ function ExampleComponent() {
   async function createUser() {
     const result = await api.user.post.one({
       body: {
-        name: "John Doe",
+        name: "John Claude Van Damme",
         email: "john@example.com",
         password: "securePassword123!",
         access_level: AccessLevel.User,
@@ -62,7 +56,6 @@ function ExampleComponent() {
 
     if (ErrorUtils.isSuccess(result)) {
       console.log("User created:", result.data);
-      // Refresh the users list
       allUsersRefetch();
     } else {
       console.error("Failed to create user:", result.message);
@@ -107,7 +100,6 @@ function ExampleComponent() {
         <button onClick={createUser}>Create New User</button>
       </div>
 
-      {/* Display single user if loaded */}
       {oneUser && !oneUserLoading && (
         <div className="single-user">
           <h2>Selected User</h2>

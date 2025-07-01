@@ -3,8 +3,6 @@ import Zodine from "../zodine";
 import companyRoutes from "./company";
 import userRoutes from "./user";
 
-// Define the error type for the API
-
 // Build the API client with the new structured approach
 const api = Zodine.builder()
   .withHost("https://api.example.com")

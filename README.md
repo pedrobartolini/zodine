@@ -5,12 +5,13 @@ A modern, type-safe REST API client builder for TypeScript/JavaScript applicatio
 ## Features
 
 - 🔒 **Type Safety**: Full TypeScript support with compile-time validation
-- 🏗️ **Builder Pattern**: Fluent API for configuring clients
-- ⚡ **React Integration**: Built-in hooks for seamless React usage
-- 🛡️ **Validation**: Automatic request/response validation with Zod
+- ❌ **Error as Value**: No sneaky throws blowing up your app, every error is returned as a value
 - 🔄 **Error Handling**: Comprehensive error types and utilities
 - 📝 **Intelligent Mapping**: Response transformation with type inference
 - 🎯 **Auto-completion**: Full IDE support with IntelliSense
+- ⚡ **React Integration**: Built-in hooks for seamless React usage
+- 🛡️ **Validation**: Automatic request/response validation with Zod
+- 🏗️ **Builder Pattern**: Fluent API for configuring clients
 
 ## Quick Start
 
