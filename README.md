@@ -185,11 +185,9 @@ const user = await api.users.getById({
 ```typescript
 const result = await api.users.getById({ path: { id: "123" } });
 
-if (Zodine.ErrorUtils.isSuccess(result)) {
+if (result.ok) {
   console.log("User:", result.data);
 } else {
-  console.error("Error:", result.message);
-
   // Handle specific error types
   switch (result.status) {
     case "validation_error":
