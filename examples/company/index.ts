@@ -1,5 +1,5 @@
 import { z } from "zod";
-import Zodine from "../../zodine";
+import Zodine from "../../src";
 import {
   userActivitySchema,
   userSchema,

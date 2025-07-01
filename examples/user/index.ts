@@ -1,5 +1,5 @@
 import { z } from "zod";
-import Zodine from "../../zodine";
+import Zodine from "../../src";
 import { companySchema } from "../company/schema";
 import {
   userAccessLevelSchema,

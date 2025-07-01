@@ -1,5 +1,5 @@
 import { z } from "zod";
-import Zodine from "../zodine";
+import Zodine from "../src";
 import companyRoutes from "./company";
 import userRoutes from "./user";
 

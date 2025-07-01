@@ -1,4 +1,4 @@
-import { ErrorUtils } from "../zodine";
+import { ErrorUtils } from "../src";
 import api from "./api";
 import { AccessLevel } from "./user/schema";
 
