@@ -1,0 +1,18 @@
+{
+  "name": "restify",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedrobartolini/restify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pedrobartolini/restify/issues"
+  },
+  "homepage": "https://github.com/pedrobartolini/restify#readme",
+  "type": "module",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-fast-compare": "^3.2.2",
+    "zod": "^3.25.67"
+  }
+}
