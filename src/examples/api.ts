@@ -8,6 +8,7 @@ import userRoutes from "./user";
 // Build the API client with the new structured approach
 const api = Zodine.builder()
   .withHost("https://api.example.com")
+
   .withApiError(async (response) => {
     const data = await response.json();
     return {
@@ -16,6 +17,7 @@ const api = Zodine.builder()
       details: data.details as string[],
     };
   })
+
   .withDefaultToaster((result) => {
     if (result.status === "api_error") {
       const { message, code, details } = result.data;
@@ -28,11 +30,13 @@ const api = Zodine.builder()
       console.log("Operation completed successfully");
     }
   })
-  .withAutoToast(true)
+
   .withDefaultHeaders({
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    Authentication: "Bearer <SESSION-TOKEN>",
   })
+
+  .withAutoToast(true)
+
   .withRoutes({
     user: userRoutes,
     company: companyRoutes,
