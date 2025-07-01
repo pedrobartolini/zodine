@@ -11,7 +11,7 @@ import {
   userUiPresetSchema,
 } from "./schema";
 
-export const userApi = {
+export default {
   get: {
     all: Zodine.get({
       endpoint: "/users",

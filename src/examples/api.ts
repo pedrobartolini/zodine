@@ -1,6 +1,6 @@
 import Zodine from "../zodine";
-import { companyApi } from "./company";
-import { userApi } from "./user";
+import companyRoutes from "./company";
+import userRoutes from "./user";
 
 // Define the error type for the API
 
@@ -32,7 +32,7 @@ const api = Zodine.builder()
     "Content-Type": "application/json",
     Accept: "application/json",
   })
-  .withRoutes({ user: userApi, company: companyApi })
+  .withRoutes({ user: userRoutes, company: companyRoutes })
   .build();
 
 export default api;

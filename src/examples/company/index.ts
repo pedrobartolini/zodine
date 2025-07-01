@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import Zodine from "../../zodine";
 import {
   userActivitySchema,
@@ -8,7 +7,7 @@ import {
 } from "../user/schema";
 import { companySchema } from "./schema";
 
-export const companyApi = {
+export default {
   get: {
     all: Zodine.get({
       endpoint: "/companies",
