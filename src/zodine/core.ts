@@ -229,7 +229,7 @@ export class ZodineBuilder<
    * - Route definitions
    * - Error handler
    */
-  build<_Never = never>(
+  build(
     ...args: THasHost extends false
       ? ["❌ Host is required - use .withHost() first"]
       : THasRoutes extends false
