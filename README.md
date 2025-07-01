@@ -98,7 +98,7 @@ function UserProfile({ userId }: { userId: string }) {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  if (!user) return <div>No user found</div>;
+  // if (!user) return <div>User not found</div>; <-- this is not needed as the hook ensures user is defined when not loading or erroring
 
   return (
     <div>
