@@ -65,16 +65,35 @@ const routes = {
 
 // Build your API client
 const api = Zodine.builder()
+  // set host
   .withHost("https://api.example.com")
+
+  // set routes
   .withRoutes(routes)
-  .withErrorHandler(async (response) => {
+
+  // set api error mapper (this callback maps responses when !response.ok)
+  .withApiError(async (response) => {
     const error = await response.json();
     return error.message || "Unknown error";
   })
+
+  // set default headers
   .withDefaultHeaders({
     Authorization: "Bearer token",
-    "Content-Type": "application/json",
   })
+
+  // set default toaster
+  // if withAutoToast = true, this will be called on every api fetch
+  // otherwise, you can call it with response.toast()
+  .withDefaultToaster(async (result) => {
+    if (result.ok) {
+      toast.success("Operation successful!");
+    } else {
+      toast.error(result.message);
+    }
+  })
+
+  // set auto toast
   .withAutoToast(true)
   .build();
 
@@ -178,6 +197,14 @@ const user = await api.users.getById({
   path: { id: "123" },
   map: { includeFullName: true },
 });
+
+user type = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName?: string; // mapped property automatically inferred
+};
+
 ```
 
 ### Error Handling
@@ -201,22 +228,4 @@ if (result.ok) {
       break;
   }
 }
-```
-
-### Custom Toasters
-
-```typescript
-const api = Zodine.builder()
-  .withHost("https://api.example.com")
-  .withRoutes(routes)
-  .withErrorHandler(errorHandler)
-  .withDefaultToaster(async (result) => {
-    if (result.ok) {
-      toast.success("Operation successful!");
-    } else {
-      toast.error(result.message);
-    }
-  })
-  .withAutoToast(true)
-  .build();
 ```
