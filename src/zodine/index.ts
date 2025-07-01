@@ -53,7 +53,6 @@ export * as ErrorUtils from "./errors";
 export { useHook } from "./hook";
 export type { HookResponse } from "./hook";
 
-import { z } from "zod";
 // Import required modules for Zodine object
 import { ZodineBuilder } from "./core";
 import { Endpoints } from "./endpoints";
@@ -97,12 +96,6 @@ export const Zodine = {
    * Create a new PATCH endpoint
    */
   patch: Endpoints.patch,
-
-  /**
-   * Zod schema utilities
-   * Provides Zod integration for request and response schemas
-   */
-  z: z,
 } as const;
 
 /**
