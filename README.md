@@ -88,9 +88,9 @@ const newUser = await api.users.create({
 
 ## React Integration
 
-```typescript
-import { useHook } from "./restify";
+All API methods has a `useHook` variant for easy integration with React components. This hook automatically handles loading states, errors, and re-fetching when parameters change.
 
+```typescript
 function UserProfile({ userId }: { userId: string }) {
   const [user, error, loading, refresh, setUser] = api.users.getById.useHook({
     path: { id: userId },
