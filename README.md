@@ -110,22 +110,6 @@ function UserProfile({ userId }: { userId: string }) {
 }
 ```
 
-## Project Structure
-
-```
-src/zodine/
-├── index.ts          # Main exports and convenience API
-├── types.ts          # All TypeScript type definitions
-├── core.ts           # ZodineBuilder and core logic
-├── endpoints.ts      # Endpoint factory functions
-├── errors.ts         # Error handling utilities
-├── request.ts        # Request creation and execution
-├── response.ts       # Response schema utilities
-├── validation.ts     # Zod validation logic
-├── utils.ts          # HTTP utilities
-└── hook.ts           # React hooks integration
-```
-
 ## Architecture Overview
 
 ### Type System (`types.ts`)
@@ -238,13 +222,3 @@ const api = Zodine.builder()
   .withAutoToast(true)
   .build();
 ```
-
-## Benefits of the New Structure
-
-1. **Modularity**: Each concern is separated into its own file
-2. **Maintainability**: Clear separation of types, logic, and utilities
-3. **Extensibility**: Easy to add new features without affecting existing code
-4. **Type Safety**: Centralized types ensure consistency across the codebase
-5. **Developer Experience**: Better IDE support and auto-completion
-6. **Testing**: Each module can be tested independently
-7. **Documentation**: Self-documenting code with clear responsibilities

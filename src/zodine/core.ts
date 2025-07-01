@@ -142,7 +142,7 @@ export class ZodineBuilder<
   /**
    * Set the error handler with proper type inference
    */
-  withErrorHandler<T>(
+  withApiError<T>(
     errorHandler: (response: Response) => Promise<T>
   ): ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true> {
     const builder = new ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true>();

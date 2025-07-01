@@ -3,16 +3,11 @@ import { companyApi } from "./company";
 import { userApi } from "./user";
 
 // Define the error type for the API
-type ApiError = {
-  message: string;
-  code: number;
-  details: string[];
-};
 
 // Build the API client with the new structured approach
 const api = Zodine.builder()
   .withHost("https://api.example.com")
-  .withErrorHandler(async (response): Promise<ApiError> => {
+  .withApiError(async (response) => {
     const data = await response.json();
     return {
       message: data.message as string,
@@ -41,4 +36,3 @@ const api = Zodine.builder()
   .build();
 
 export default api;
-export type { ApiError };

@@ -1,5 +1,4 @@
 import { ErrorUtils } from "../zodine";
-import type { ApiError } from "./api";
 import api from "./api";
 import { AccessLevel } from "./user/schema";
 
@@ -33,7 +32,7 @@ function ExampleComponent() {
       switch (result.status) {
         case "api_error":
           // Custom error type is properly typed
-          const apiError = result.data as ApiError;
+          const apiError = result.data;
           console.error(`API Error ${apiError.code}: ${apiError.message}`);
           break;
         case "validation_error":
