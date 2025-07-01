@@ -129,6 +129,8 @@ function createNestedMethods<TError = string>(
 export class RestifyBuilder<
   TRoutes extends RouteDefinitions = {},
   TError = string,
+  THasHost extends boolean = false,
+  THasRoutes extends boolean = false,
   THasErrorHandler extends boolean = false
 > {
   private host?: string;
@@ -138,11 +140,17 @@ export class RestifyBuilder<
   private defaultHeaders?: Record<string, string>;
   private errorHandler?: (response: Response) => Promise<TError>;
 
-  constructor() {}
-
   // Set the host URL
-  withHost(host: string): RestifyBuilder<TRoutes, TError, THasErrorHandler> {
-    const builder = new RestifyBuilder<TRoutes, TError, THasErrorHandler>();
+  withHost(
+    host: string
+  ): RestifyBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler> {
+    const builder = new RestifyBuilder<
+      TRoutes,
+      TError,
+      true,
+      THasRoutes,
+      THasErrorHandler
+    >();
     builder.host = host;
     builder.routes = this.routes;
     builder.defaultToaster = this.defaultToaster;
@@ -155,8 +163,14 @@ export class RestifyBuilder<
   // Set the route definitions with proper type inference
   withRoutes<T extends RouteDefinitions>(
     routes: T
-  ): RestifyBuilder<T, TError, THasErrorHandler> {
-    const builder = new RestifyBuilder<T, TError, THasErrorHandler>();
+  ): RestifyBuilder<T, TError, THasHost, true, THasErrorHandler> {
+    const builder = new RestifyBuilder<
+      T,
+      TError,
+      THasHost,
+      true,
+      THasErrorHandler
+    >();
     builder.host = this.host;
     builder.routes = routes;
     builder.defaultToaster = this.defaultToaster;
@@ -169,8 +183,14 @@ export class RestifyBuilder<
   // Set the error handler with proper type inference
   withErrorHandler<T>(
     errorHandler: (response: Response) => Promise<T>
-  ): RestifyBuilder<TRoutes, T, true> {
-    const builder = new RestifyBuilder<TRoutes, T, true>();
+  ): RestifyBuilder<TRoutes, T, THasHost, THasRoutes, true> {
+    const builder = new RestifyBuilder<
+      TRoutes,
+      T,
+      THasHost,
+      THasRoutes,
+      true
+    >();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.defaultToaster = undefined; // Reset toaster as error type changed
@@ -183,8 +203,14 @@ export class RestifyBuilder<
   // Set the default toaster
   withDefaultToaster(
     toaster: RequestSchema.ToasterCallback<TError>
-  ): RestifyBuilder<TRoutes, TError, THasErrorHandler> {
-    const builder = new RestifyBuilder<TRoutes, TError, THasErrorHandler>();
+  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new RestifyBuilder<
+      TRoutes,
+      TError,
+      THasHost,
+      THasRoutes,
+      THasErrorHandler
+    >();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.defaultToaster = toaster;
@@ -197,8 +223,14 @@ export class RestifyBuilder<
   // Set auto toast option
   withAutoToast(
     autoToast: boolean = true
-  ): RestifyBuilder<TRoutes, TError, THasErrorHandler> {
-    const builder = new RestifyBuilder<TRoutes, TError, THasErrorHandler>();
+  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new RestifyBuilder<
+      TRoutes,
+      TError,
+      THasHost,
+      THasRoutes,
+      THasErrorHandler
+    >();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.defaultToaster = this.defaultToaster;
@@ -211,8 +243,14 @@ export class RestifyBuilder<
   // Set default headers
   withDefaultHeaders(
     headers: Record<string, string>
-  ): RestifyBuilder<TRoutes, TError, THasErrorHandler> {
-    const builder = new RestifyBuilder<TRoutes, TError, THasErrorHandler>();
+  ): RestifyBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new RestifyBuilder<
+      TRoutes,
+      TError,
+      THasHost,
+      THasRoutes,
+      THasErrorHandler
+    >();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.defaultToaster = this.defaultToaster;
@@ -222,33 +260,31 @@ export class RestifyBuilder<
     return builder;
   }
 
-  // Build the final API methods - only available when all required options are set
-  build(): THasErrorHandler extends true
-    ? TRoutes extends RouteDefinitions
-      ? GenerateApiMethods<TRoutes, TError>
+  // Build method that shows compile-time errors when requirements are missing
+  build<_Never = never>(
+    ...args: THasHost extends false
+      ? ["❌ Host is required - use .withHost() first"]
+      : THasRoutes extends false
+      ? ["❌ Routes are required - use .withRoutes() first"]
+      : THasErrorHandler extends false
+      ? ["❌ Error handler is required - use .withErrorHandler() first"]
+      : []
+  ): THasHost extends true
+    ? THasRoutes extends true
+      ? THasErrorHandler extends true
+        ? GenerateApiMethods<TRoutes, TError>
+        : never
       : never
     : never {
-    if (!this.host) {
-      throw new Error("Host is required. Use withHost() to set it.");
-    }
-    if (!this.routes) {
-      throw new Error("Routes are required. Use withRoutes() to set them.");
-    }
-    if (!this.errorHandler) {
-      throw new Error(
-        "Error handler is required. Use withErrorHandler() to set it."
-      );
-    }
-
     const apiMethods: any = {};
     createNestedMethods(
-      this.host,
-      this.routes,
+      this.host as string,
+      this.routes as TRoutes,
       apiMethods,
       this.defaultToaster ?? ((() => {}) as RequestSchema.ToasterCallback),
       !!this.autoToast,
       this.defaultHeaders,
-      this.errorHandler
+      this.errorHandler as (response: Response) => Promise<TError>
     );
     return apiMethods as any;
   }
@@ -293,7 +329,7 @@ export const createDeleteEndpoint = <
 
 export default {
   builder: () => new RestifyBuilder(),
-  schema: ResponseSchema.create,
+  response: ResponseSchema.create,
   get: createGetEndpoint,
   post: createPostEndpoint,
   put: createPutEndpoint,

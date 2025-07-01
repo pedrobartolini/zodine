@@ -12,23 +12,23 @@ export const companyApi = {
   get: {
     all: restify.get({
       endpoint: "/companies",
-      responseSchema: restify.schema(z.array(companySchema)),
+      responseSchema: restify.response(z.array(companySchema)),
     }),
     one: restify.get({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string().optional() }),
-      responseSchema: restify.schema(companySchema),
+      responseSchema: restify.response(companySchema),
     }),
     multiple: restify.get({
       endpoint: "/companies/multiple",
       querySchema: z.object({ company_uids: z.string().optional() }),
-      responseSchema: restify.schema(z.record(z.string(), companySchema)),
+      responseSchema: restify.response(z.record(z.string(), companySchema)),
     }),
 
     oneUsers: restify.get({
       endpoint: "/companies/:company_uid/users",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.schema(
+      responseSchema: restify.response(
         z.array(userSchema),
         (data) => () => data.map(userSchemaMapper)
       ),
@@ -39,7 +39,7 @@ export const companyApi = {
       querySchema: z
         .object({ since: z.number().negative() })
         .or(z.object({ limit: z.number().min(0) })),
-      responseSchema: restify.schema(z.array(userActivitySchema)),
+      responseSchema: restify.response(z.array(userActivitySchema)),
     }),
   },
 
@@ -47,7 +47,7 @@ export const companyApi = {
     one: restify.post({
       endpoint: "/companies",
       bodySchema: z.object({ name: z.string(), description: z.string() }),
-      responseSchema: restify.schema(companySchema),
+      responseSchema: restify.response(companySchema),
     }),
   },
 
@@ -56,35 +56,35 @@ export const companyApi = {
       endpoint: "/companies/:company_uid/name",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ name: z.string() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
     oneDescription: restify.put({
       endpoint: "/companies/:company_uid/description",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ description: z.string() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
     oneClientKey: restify.put({
       endpoint: "/companies/:company_uid/stock_client_key",
       pathSchema: z.object({ company_uid: z.string() }),
       bodySchema: z.object({ stock_client_key: z.string().nullable() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
     oneMqttKey: restify.put({
       endpoint: "/companies/:company_uid/mqtt_key",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
     oneImageAdd: restify.put({
       endpoint: "/companies/:company_uid/image_add",
       pathSchema: z.object({ company_uid: z.string() }),
       formDataSchema: z.object({ image: z.instanceof(File) }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
     oneImageRemove: restify.put({
       endpoint: "/companies/:company_uid/image_remove",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
   },
 
@@ -92,7 +92,7 @@ export const companyApi = {
     one: restify.delete({
       endpoint: "/companies/:company_uid",
       pathSchema: z.object({ company_uid: z.string() }),
-      responseSchema: restify.schema(z.string()),
+      responseSchema: restify.response(z.string()),
     }),
   },
 };
