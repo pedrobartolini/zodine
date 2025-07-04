@@ -29,10 +29,10 @@ const routes = {
           z.object({
             id: z.number(),
             name: z.string(),
-            email: z.string(),
+            email: z.string()
           })
         )
-      ),
+      )
     }),
 
     getById: Zodine.get({
@@ -42,26 +42,26 @@ const routes = {
         z.object({
           id: z.number(),
           name: z.string(),
-          email: z.string(),
+          email: z.string()
         })
-      ),
+      )
     }),
 
     create: Zodine.post({
       endpoint: "/users",
       bodySchema: z.object({
         name: z.string(),
-        email: z.string(),
+        email: z.string()
       }),
       responseSchema: Zodine.response(
         z.object({
           id: z.number(),
           name: z.string(),
-          email: z.string(),
+          email: z.string()
         })
-      ),
-    }),
-  },
+      )
+    })
+  }
 };
 
 // Build your API client
@@ -80,7 +80,7 @@ const api = Zodine.builder()
 
   // set default headers
   .withDefaultHeaders({
-    Authorization: "Bearer token",
+    Authorization: "Bearer token"
   })
 
   // set default toaster
@@ -102,18 +102,19 @@ const api = Zodine.builder()
 const users = await api.users.getAll({});
 const user = await api.users.getById({ path: { id: "123" } });
 const newUser = await api.users.create({
-  body: { name: "John", email: "john@example.com" },
+  body: { name: "John", email: "john@example.com" }
 });
 ```
 
 ## React Integration
 
-All API methods has a `useHook` variant for easy integration with React components. This hook automatically handles loading states, errors, and re-fetching when parameters change.
+All API methods has a `useHook` variant for easy integration with React components. This hook automatically handles loading states, errors, and re-fetching when parameters change. You can also use the `lazy` option to prevent automatic data fetching on component mount.
 
 ```typescript
 function UserProfile({ userId }: { userId: string }) {
   const [user, error, loading, refresh, setUser] = api.users.getById.useHook({
     path: { id: userId },
+    // lazy: true, // Optional: Set to true to disable automatic data fetching
   });
 
   if (loading) return <div>Loading...</div>;

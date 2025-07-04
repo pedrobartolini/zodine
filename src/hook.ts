@@ -56,7 +56,7 @@ export type HookResponse<T extends Types.RequestSchema, TError = string> =
 
 export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
-  callParams: Types.CallSignature<T>
+  callParams: Types.CallSignature<T> & { lazy?: boolean }
 ): HookResponse<T, TError> {
   const [data, setData] = useState<ResponseSchema.InferResult<
     T["responseSchema"]
@@ -92,8 +92,14 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   }, [requester, requestParams]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // Only fetch data automatically if not in lazy mode
+    if (!callParams.lazy) {
+      fetchData();
+    } else if (loading) {
+      // If in lazy mode, just set loading to false without fetching
+      setLoading(false);
+    }
+  }, [fetchData, callParams.lazy]);
 
   useEffect(() => {
     if (data && mapperParams !== undefined) {

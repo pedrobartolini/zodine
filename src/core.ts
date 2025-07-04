@@ -7,7 +7,9 @@ type RouteFunction<
   T extends Types.RequestSchema<any>,
   TError = string
 > = Types.RequesterFunction<T, TError> & {
-  useHook: (params: Types.CallSignature<T>) => Hook.HookResponse<T, TError>;
+  useHook: (
+    params: Types.CallSignature<T> & { lazy?: boolean }
+  ) => Hook.HookResponse<T, TError>;
 };
 
 export type GenerateApiMethods<
