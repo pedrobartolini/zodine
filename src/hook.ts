@@ -28,7 +28,7 @@ function useDeepCompareCallback<T extends (...args: any[]) => any>(
   return useCallback(fn, memoDeps);
 }
 
-type RefreshFunction = (resetState: boolean) => Promise<void>;
+type RefreshFunction = (resetState?: boolean) => Promise<void>;
 type SetterFunction<T> = (newData: T) => void;
 
 export type HookResponse<T extends Types.RequestSchema, TError = string> =
@@ -114,7 +114,7 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
     [mapperParams]
   );
 
-  async function refresh(resetState: boolean) {
+  async function refresh(resetState?: boolean) {
     if (resetState) {
       setLoading(true);
       setData(null);
