@@ -68,7 +68,7 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
     body: callParams.body,
     query: callParams.query,
     headers: callParams.headers,
-    path: callParams.path,
+    path: callParams.path
   });
 
   const mapperParams = useDeepCompareMemo(callParams.map);
@@ -105,11 +105,11 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   }, [mapperParams]);
 
   const setter = useCallback(
-    (newData: ResponseSchema.InferResult<T["responseSchema"]>) => {
+    (nextData: ResponseSchema.InferResult<T["responseSchema"]>) => {
       if (mapperParams) {
-        setData((requester as any).mapper(newData)(mapperParams));
+        setData((requester as any).mapper(nextData)(mapperParams));
       } else {
-        setData(newData);
+        setData(nextData);
       }
     },
     [mapperParams]

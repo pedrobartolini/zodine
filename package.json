@@ -19,5 +19,8 @@
     "react": "^19.1.0",
     "react-fast-compare": "^3.2.2",
     "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }
