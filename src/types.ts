@@ -12,7 +12,6 @@ export type RequestSchema<TMethod extends HttpMethod = HttpMethod> = {
   querySchema?: z.ZodSchema<any>;
   headersSchema?: z.ZodSchema<any>;
   responseSchema: ResponseSchema.ResponseSchema<any, any, any>;
-  autoToast?: boolean;
 };
 
 export type RouteDefinitions = {
@@ -63,12 +62,20 @@ export type CallSignature<T extends RequestSchema> = InferURLParam<T> &
   InferHeaderParam<T> &
   InferMapperParams<T>;
 
-export type ToasterCallback<TError = any> = (
-  result: ApiResponse<any, TError>
-) => Promise<void> | void;
-
 // Core response types
 export type Success<T> = { ok: true; status: "success"; data: T };
+
+// Prefetch and postfetch callback types
+export type PrefetchCallback = (args: {
+  url: string;
+  method: HttpMethod;
+  headers: Headers;
+  body?: BodyInit | null;
+}) => Promise<void> | void;
+
+export type PostfetchCallback<TData = any, TError = any> = (
+  response: ApiResponse<TData, TError>
+) => Promise<void> | void;
 
 export type ValidationError = {
   ok: false;
@@ -108,10 +115,9 @@ export type Errors<T = string> =
   | CustomError<T>
   | MapperError;
 
-export type ApiResponse<TData, TError = string> = (
+export type ApiResponse<TData, TError = string> =
   | Success<TData>
-  | Errors<TError>
-) & { toast: () => void };
+  | Errors<TError>;
 
 export type RequesterFunction<
   TSchema extends RequestSchema,

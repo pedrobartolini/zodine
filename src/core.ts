@@ -33,8 +33,8 @@ function createNestedMethods<TError = string>(
   host: string,
   routes: Types.RouteDefinitions,
   target: any,
-  defaultToaster: Types.ToasterCallback<TError>,
-  autoToast: boolean,
+  prefetchCallback: Types.PrefetchCallback | undefined,
+  postfetchCallback: Types.PostfetchCallback<any, TError> | undefined,
   defaultHeaders: Record<string, string> | undefined,
   errorHandler: (response: Response) => Promise<TError>
 ) {
@@ -63,8 +63,8 @@ function createNestedMethods<TError = string>(
       const requester = RequestCreator.create(
         host,
         routeValue as any,
-        defaultToaster,
-        autoToast,
+        prefetchCallback,
+        postfetchCallback,
         currentHeaders,
         errorHandler
       );
@@ -79,8 +79,8 @@ function createNestedMethods<TError = string>(
         host,
         routeValue as Types.RouteDefinitions,
         target[routeName],
-        defaultToaster,
-        !!autoToast,
+        prefetchCallback,
+        postfetchCallback,
         currentHeaders,
         errorHandler
       );
@@ -96,8 +96,8 @@ function createNestedMethods<TError = string>(
       const requester = RequestCreator.create(
         host,
         item.schema as any,
-        defaultToaster,
-        autoToast,
+        prefetchCallback,
+        postfetchCallback,
         headers,
         errorHandler
       );
@@ -134,8 +134,8 @@ export class ZodineBuilder<
 > {
   private host?: string;
   private routes?: TRoutes;
-  private defaultToaster?: Types.ToasterCallback<TError>;
-  private autoToast?: boolean;
+  private prefetchCallback?: Types.PrefetchCallback;
+  private postfetchCallback?: Types.PostfetchCallback<any, TError>;
   private defaultHeaders?: Record<string, string>;
   private errorHandler?: (response: Response) => Promise<TError>;
 
@@ -154,8 +154,8 @@ export class ZodineBuilder<
     >();
     builder.host = host;
     builder.routes = this.routes;
-    builder.defaultToaster = this.defaultToaster;
-    builder.autoToast = this.autoToast;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
     return builder;
@@ -176,8 +176,8 @@ export class ZodineBuilder<
     >();
     builder.host = this.host;
     builder.routes = routes;
-    builder.defaultToaster = this.defaultToaster;
-    builder.autoToast = this.autoToast;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
     return builder;
@@ -192,18 +192,18 @@ export class ZodineBuilder<
     const builder = new ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true>();
     builder.host = this.host;
     builder.routes = this.routes;
-    builder.defaultToaster = undefined; // Reset toaster as error type changed
-    builder.autoToast = this.autoToast;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = undefined; // Reset postfetch as error type changed
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = errorHandler;
     return builder;
   }
 
   /**
-   * Set the default toaster function for handling responses
+   * Set the prefetch callback that runs before each request
    */
-  withDefaultToaster(
-    toaster: Types.ToasterCallback<TError>
+  withPrefetch(
+    callback: Types.PrefetchCallback
   ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
     const builder = new ZodineBuilder<
       TRoutes,
@@ -214,18 +214,18 @@ export class ZodineBuilder<
     >();
     builder.host = this.host;
     builder.routes = this.routes;
-    builder.defaultToaster = toaster;
-    builder.autoToast = this.autoToast;
+    builder.prefetchCallback = callback;
+    builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
     return builder;
   }
 
   /**
-   * Enable or disable automatic toasting
+   * Set the postfetch callback that runs after each request
    */
-  withAutoToast(
-    autoToast: boolean = true
+  withPostfetch(
+    callback: Types.PostfetchCallback<any, TError>
   ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
     const builder = new ZodineBuilder<
       TRoutes,
@@ -236,8 +236,8 @@ export class ZodineBuilder<
     >();
     builder.host = this.host;
     builder.routes = this.routes;
-    builder.defaultToaster = this.defaultToaster;
-    builder.autoToast = autoToast;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = callback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
     return builder;
@@ -258,8 +258,8 @@ export class ZodineBuilder<
     >();
     builder.host = this.host;
     builder.routes = this.routes;
-    builder.defaultToaster = this.defaultToaster;
-    builder.autoToast = this.autoToast;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = headers;
     builder.errorHandler = this.errorHandler;
     return builder;
@@ -293,8 +293,8 @@ export class ZodineBuilder<
       this.host as string,
       this.routes as TRoutes,
       apiMethods,
-      this.defaultToaster ?? ((() => {}) as Types.ToasterCallback),
-      !!this.autoToast,
+      this.prefetchCallback,
+      this.postfetchCallback,
       this.defaultHeaders,
       this.errorHandler as (response: Response) => Promise<TError>
     );

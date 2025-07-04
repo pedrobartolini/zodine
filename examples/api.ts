@@ -12,11 +12,13 @@ const api = Zodine.builder()
     return {
       message: data.message as string,
       code: data.code as number,
-      details: data.details as string[],
+      details: data.details as string[]
     };
   })
 
-  .withDefaultToaster((result) => {
+  .withPrefetch((params) => {})
+
+  .withPostfetch((result) => {
     if (result.status === "api_error") {
       const { message, code, details } = result.data;
 
@@ -31,10 +33,8 @@ const api = Zodine.builder()
   })
 
   .withDefaultHeaders({
-    Authentication: "Bearer <SESSION-TOKEN>",
+    Authentication: "Bearer <SESSION-TOKEN>"
   })
-
-  .withAutoToast(true)
 
   .withRoutes({
     user: userRoutes,
@@ -44,10 +44,10 @@ const api = Zodine.builder()
       endpoint: "/auth/login",
       bodySchema: z.object({
         email: z.string().email(),
-        password: z.string().min(6).max(100),
+        password: z.string().min(6).max(100)
       }),
-      responseSchema: Zodine.response(z.string()), // session token
-    }),
+      responseSchema: Zodine.response(z.string()) // session token
+    })
   })
   .build();
 
