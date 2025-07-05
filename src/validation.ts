@@ -19,18 +19,22 @@ function validateWithSchema<T>(
   }
 }
 
+type ValidationResult<T> = [T, null] | [null, Types.ValidationError];
+
 export function validateInputParams<T extends Types.RequestSchema>(
   schema: T,
   params: Types.RequesterParams<T>
-): Types.ValidationError | null {
+): ValidationResult<Types.RequesterParams<T>> {
+  const next = { ...params };
+
   if (schema.bodySchema && params.body) {
     const [parsed, error] = validateWithSchema(
       schema.bodySchema,
       params.body,
       "Invalid request body"
     );
-    if (error) return error;
-    params.body = parsed;
+    if (error) return [null, error];
+    next.body = parsed;
   }
   if (schema.formDataSchema && params.formData) {
     const [parsed, error] = validateWithSchema(
@@ -38,8 +42,8 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.formData,
       "Invalid form data"
     );
-    if (error) return error;
-    params.formData = parsed;
+    if (error) return [null, error];
+    next.formData = parsed;
   }
   if (schema.querySchema && params.query) {
     const [parsed, error] = validateWithSchema(
@@ -47,8 +51,8 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.query,
       "Invalid query parameters"
     );
-    if (error) return error;
-    params.query = parsed;
+    if (error) return [null, error];
+    next.query = parsed;
   }
   if (schema.headersSchema && params.headers) {
     const [parsed, error] = validateWithSchema(
@@ -56,8 +60,8 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.headers,
       "Invalid headers"
     );
-    if (error) return error;
-    params.headers = parsed;
+    if (error) return [null, error];
+    next.headers = parsed;
   }
   if (schema.pathSchema && params.path) {
     const [parsed, error] = validateWithSchema(
@@ -65,10 +69,11 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.path,
       "Invalid URL parameters"
     );
-    if (error) return error;
-    params.path = parsed;
+    if (error) return [null, error];
+    next.path = parsed;
   }
-  return null;
+
+  return [next, null];
 }
 
 export function validateResponseData<T extends Types.RequestSchema>(
