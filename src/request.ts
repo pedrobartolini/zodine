@@ -25,8 +25,7 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
       >
     > => {
       try {
-        const [validatedParams, validationError] =
-          Validation.validateInputParams(schema, params);
+        const validationError = Validation.validateInputParams(schema, params);
         if (validationError) {
           // Call postfetchCallback with validation error if provided
           if (postfetchCallback) {
@@ -35,22 +34,22 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
           return validationError;
         }
 
-        const url = Utils.buildUrl(host, schema, validatedParams);
+        const url = Utils.buildUrl(host, schema, params);
 
         // Prepare request details for prefetchCallback
         const headers = new Headers({ ...(defaultHeaders || {}) });
-        if (schema.headersSchema && validatedParams.headers) {
+        if (schema.headersSchema && params.headers) {
           for (const [key, value] of Object.entries(
-            validatedParams.headers as Record<string, string>
+            params.headers as Record<string, string>
           )) {
             headers.append(key, String(value));
           }
         }
 
         let body: BodyInit | null = null;
-        if (schema.formDataSchema && validatedParams.formData) {
+        if (schema.formDataSchema && params.formData) {
           body = new FormData();
-          for (const [key, value] of Object.entries(validatedParams.formData)) {
+          for (const [key, value] of Object.entries(params.formData)) {
             if (value instanceof Array) {
               if (value.length !== 0 && value[0] instanceof File) {
                 for (const item of value) {
@@ -61,8 +60,8 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
             }
             (body as FormData).append(key, value);
           }
-        } else if (schema.bodySchema && validatedParams.body) {
-          body = JSON.stringify(validatedParams.body);
+        } else if (schema.bodySchema && params.body) {
+          body = JSON.stringify(params.body);
           headers.append("Content-Type", "application/json");
         }
 
@@ -81,7 +80,7 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         const responseOrError = await Utils.executeRequest(
           url,
           schema,
-          validatedParams,
+          params,
           defaultHeaders
         );
 
