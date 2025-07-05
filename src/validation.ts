@@ -20,17 +20,21 @@ function validateWithSchema<T>(
   }
 }
 
+type ValidationResult<T extends Types.RequestSchema> =
+  | [Types.RequesterParams<T>, null]
+  | [null, Types.ValidationError];
+
 export function validateInputParams<T extends Types.RequestSchema>(
   schema: T,
   params: Types.RequesterParams<T>
-): Types.ValidationError | null {
+): ValidationResult<T> {
   if (schema.bodySchema && params.body) {
     const [parsed, error] = validateWithSchema(
       schema.bodySchema,
       params.body,
       "Invalid request body"
     );
-    if (error) return error;
+    if (error) return [null, error];
     params.body = parsed;
   }
   if (schema.formDataSchema && params.formData) {
@@ -39,7 +43,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.formData,
       "Invalid form data"
     );
-    if (error) return error;
+    if (error) return [null, error];
     params.formData = parsed;
   }
   if (schema.querySchema && params.query) {
@@ -48,7 +52,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.query,
       "Invalid query parameters"
     );
-    if (error) return error;
+    if (error) return [null, error];
     params.query = parsed;
   }
   if (schema.headersSchema && params.headers) {
@@ -57,7 +61,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.headers,
       "Invalid headers"
     );
-    if (error) return error;
+    if (error) return [null, error];
     params.headers = parsed;
   }
   if (schema.pathSchema && params.path) {
@@ -66,10 +70,10 @@ export function validateInputParams<T extends Types.RequestSchema>(
       params.path,
       "Invalid URL parameters"
     );
-    if (error) return error;
+    if (error) return [null, error];
     params.path = parsed;
   }
-  return null;
+  return [params, null];
 }
 
 export function validateResponseData<T extends Types.RequestSchema>(
