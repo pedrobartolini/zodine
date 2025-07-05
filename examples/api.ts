@@ -1,34 +1,27 @@
-import { z } from "zod";
 import Zodine from "../src";
-import companyRoutes from "./company";
-import userRoutes from "./user";
+import post from "./post";
 
 // Build the API client with the new structured approach
 const api = Zodine.builder()
-  .withHost("https://api.example.com")
+  .withHost("https://jsonplaceholder.typicode.com/")
 
   .withApiError(async (response) => {
-    const data = await response.json();
-    return {
-      message: data.message as string,
-      code: data.code as number,
-      details: data.details as string[]
-    };
+    return;
   })
 
-  .withPrefetch((params) => {})
+  .withPrefetch((request) => {
+    console.log("API Request:", request.method, request.url);
+  })
 
-  .withPostfetch((result) => {
-    if (result.status === "api_error") {
-      const { message, code, details } = result.data;
-
-      console.log(
-        `Error ${code}: ${message} - ${details.join(
-          ", "
-        )} at ${new Date().toISOString()}`
-      );
-    } else if (result.status === "success") {
-      console.log("Operation completed successfully");
+  .withPostfetch((response) => {
+    if (response.status === "validation_error") {
+      console.error("Validation Error:", response.errors);
+    } else if (response.status === "network_error") {
+      console.error("Network Error:", response.error);
+    } else if (response.status === "mapper_error") {
+      console.error("Mapper Error:", response.error);
+    } else if (response.status === "api_error" && response.code !== 401) {
+      console.error(`API Error [${response.code}]:`, response.data);
     }
   })
 
@@ -36,19 +29,7 @@ const api = Zodine.builder()
     Authentication: "Bearer <SESSION-TOKEN>"
   })
 
-  .withRoutes({
-    user: userRoutes,
-    company: companyRoutes,
-
-    login: Zodine.post({
-      endpoint: "/auth/login",
-      bodySchema: z.object({
-        email: z.string().email(),
-        password: z.string().min(6).max(100)
-      }),
-      responseSchema: Zodine.response(z.string()) // session token
-    })
-  })
+  .withRoutes({ post })
   .build();
 
 export default api;
