@@ -29,10 +29,16 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
           Validation.validateInputParams(schema, params);
         if (validationError) {
           // Call postfetchCallback with validation error if provided
+          const nError = {
+            ...validationError,
+            endpoint: schema.endpoint,
+            method: schema.method
+          };
+
           if (postfetchCallback) {
-            await Promise.resolve(postfetchCallback(validationError));
+            await Promise.resolve(postfetchCallback(nError));
           }
-          return validationError;
+          return nError;
         }
 
         const url = Utils.buildUrl(host, schema, validatedParams);
@@ -86,11 +92,17 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         );
 
         if ("error" in responseOrError) {
+          const nError = {
+            ...responseOrError,
+            endpoint: url,
+            method: schema.method
+          };
+
           // Call postfetchCallback with network error if provided
           if (postfetchCallback) {
-            await Promise.resolve(postfetchCallback(responseOrError));
+            await Promise.resolve(postfetchCallback(nError));
           }
-          return responseOrError;
+          return nError;
         }
 
         const response = responseOrError;
@@ -100,12 +112,18 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
             errorHandler
           );
 
+          const nError = {
+            ...errorResponse,
+            endpoint: url,
+            method: schema.method
+          };
+
           // Call postfetchCallback with error response if provided
           if (postfetchCallback) {
-            await Promise.resolve(postfetchCallback(errorResponse));
+            await Promise.resolve(postfetchCallback(nError));
           }
 
-          return errorResponse;
+          return nError;
         }
 
         const data = await response.json();
@@ -132,30 +150,48 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
               error instanceof Error ? error : new Error(String(error))
             );
 
+            const nError = {
+              ...mapperError,
+              endpoint: schema.endpoint,
+              method: schema.method
+            };
+
             // Call postfetchCallback with mapper error if provided
             if (postfetchCallback) {
-              await Promise.resolve(postfetchCallback(mapperError));
+              await Promise.resolve(postfetchCallback(nError));
             }
-            return mapperError;
+            return nError;
           }
         }
 
+        const nError = {
+          ...validatedData,
+          endpoint: schema.endpoint,
+          method: schema.method
+        };
+
         // Call postfetchCallback with validated data if provided
         if (postfetchCallback) {
-          await Promise.resolve(postfetchCallback(validatedData));
+          await Promise.resolve(postfetchCallback(nError));
         }
-        return validatedData;
+        return nError;
       } catch (error) {
         const networkError = Errors.createNetworkError(
           "Não foi possível completar a requisição.",
           error instanceof Error ? error : new Error(String(error))
         );
 
+        const nError = {
+          ...networkError,
+          endpoint: schema.endpoint,
+          method: schema.method
+        };
+
         // Call postfetchCallback with network error if provided
         if (postfetchCallback) {
-          await Promise.resolve(postfetchCallback(networkError));
+          await Promise.resolve(postfetchCallback(nError));
         }
-        return networkError;
+        return nError;
       }
     };
 

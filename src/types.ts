@@ -82,7 +82,7 @@ export type ValidationError = {
   code: number;
   status: "validation_error";
   message: string;
-  errors: z.ZodError;
+  error: z.ZodError;
 };
 
 export type NetworkError = {
@@ -109,11 +109,15 @@ export type MapperError = {
   error: Error;
 };
 
-export type Errors<T = string> =
+export type Errors<T = string> = (
   | ValidationError
   | NetworkError
   | CustomError<T>
-  | MapperError;
+  | MapperError
+) & {
+  endpoint: string;
+  method: HttpMethod;
+};
 
 export type ApiResponse<TData, TError = string> =
   | Success<TData>

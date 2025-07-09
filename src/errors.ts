@@ -13,7 +13,7 @@ export function createSuccess<T>(data: T): Types.Success<T> {
  */
 export function createValidationError(
   message: string,
-  errors: z.ZodError,
+  error: z.ZodError,
   code: number = 400
 ): Types.ValidationError {
   return {
@@ -21,7 +21,7 @@ export function createValidationError(
     code,
     status: "validation_error",
     message,
-    errors,
+    error
   };
 }
 
@@ -38,7 +38,7 @@ export function createNetworkError(
     code,
     status: "network_error",
     message,
-    error,
+    error
   };
 }
 
@@ -55,7 +55,7 @@ export function createCustomError<T = string>(
     code,
     status: "api_error",
     message,
-    data,
+    data
   };
 }
 
@@ -72,7 +72,7 @@ export function createMapperError(
     code,
     status: "mapper_error",
     message,
-    error,
+    error
   };
 }
 
