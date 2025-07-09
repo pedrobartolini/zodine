@@ -15,7 +15,7 @@ const api = Zodine.builder()
 
   .withPostfetch((response) => {
     if (response.status === "validation_error") {
-      console.error("Validation Error:", response.errors);
+      console.error("Validation Error:", response.error);
     } else if (response.status === "network_error") {
       console.error("Network Error:", response.error);
     } else if (response.status === "mapper_error") {
