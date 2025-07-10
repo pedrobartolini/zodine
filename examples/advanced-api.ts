@@ -92,4 +92,6 @@ const testApi = Zodine.builder()
   })
   .build();
 
+testApi.photos.getByAlbum({ path: { albumId: 1 } });
+
 export default testApi;

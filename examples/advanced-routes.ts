@@ -199,7 +199,7 @@ const photos = {
     pathSchema: z.object({
       albumId: z.number().int()
     }),
-    responseSchema: Zodine.response(photoSchema.array())
+    responseSchema: Zodine.response(photoSchema.array(), (data) => () => "")
   })
 };
 

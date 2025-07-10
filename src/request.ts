@@ -135,49 +135,51 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         }
 
         const data = await response.json();
+
         const validatedData = Validation.validateResponseData(
           schema,
           data,
           params.map,
+          !dontMap,
           language
         );
 
-        if (schema.responseSchema.mapper && validatedData.ok && !dontMap) {
-          try {
-            validatedData.data = schema.responseSchema.mapper(
-              validatedData.data
-            )(params.map);
+        // if (!dontMap && schema.responseSchema.mapper && validatedData.ok) {
+        //   try {
+        //     validatedData.data = schema.responseSchema.mapper(
+        //       validatedData.data
+        //     )(params.map);
 
-            const nError = {
-              ...validatedData,
-              endpoint: url,
-              method: schema.method
-            };
+        //     const nError = {
+        //       ...validatedData,
+        //       endpoint: url,
+        //       method: schema.method
+        //     };
 
-            // Call postfetchCallback with successful result if provided
-            if (postfetchCallback) {
-              await Promise.resolve(postfetchCallback(nError));
-            }
-            return nError;
-          } catch (error) {
-            const mapperError = Errors.createMapperError(
-              translations.errors.mapperError,
-              error instanceof Error ? error : new Error(String(error))
-            );
+        //     // Call postfetchCallback with successful result if provided
+        //     if (postfetchCallback) {
+        //       await Promise.resolve(postfetchCallback(nError));
+        //     }
+        //     return nError;
+        //   } catch (error) {
+        //     const mapperError = Errors.createMapperError(
+        //       translations.errors.mapperError,
+        //       error instanceof Error ? error : new Error(String(error))
+        //     );
 
-            const nError = {
-              ...mapperError,
-              endpoint: schema.endpoint,
-              method: schema.method
-            };
+        //     const nError = {
+        //       ...mapperError,
+        //       endpoint: schema.endpoint,
+        //       method: schema.method
+        //     };
 
-            // Call postfetchCallback with mapper error if provided
-            if (postfetchCallback) {
-              await Promise.resolve(postfetchCallback(nError));
-            }
-            return nError;
-          }
-        }
+        //     // Call postfetchCallback with mapper error if provided
+        //     if (postfetchCallback) {
+        //       await Promise.resolve(postfetchCallback(nError));
+        //     }
+        //     return nError;
+        //   }
+        // }
 
         const nError = {
           ...validatedData,

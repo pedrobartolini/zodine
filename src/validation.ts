@@ -82,7 +82,8 @@ export function validateInputParams<T extends Types.RequestSchema>(
 export function validateResponseData<T extends Types.RequestSchema>(
   schema: T,
   data: unknown,
-  mapperParam?: ResponseSchema.InferMapperArg<T>,
+  mapperParam: ResponseSchema.InferMapperArg<T> | undefined,
+  doMapping: boolean,
   language: Language = "en"
 ):
   | Types.Success<ResponseSchema.InferResult<T["responseSchema"]>>
@@ -90,12 +91,14 @@ export function validateResponseData<T extends Types.RequestSchema>(
   const translations = t(language);
   try {
     const parsedData = schema.responseSchema.schema.parse(data);
-    const finalData = schema.responseSchema.mapper
-      ? (schema.responseSchema.mapper as any)(parsedData)(mapperParam)
-      : parsedData;
-    return Errors.createSuccess(
-      finalData as ResponseSchema.InferResult<T["responseSchema"]>
-    );
+
+    if (doMapping && schema.responseSchema.mapper) {
+      return Errors.createSuccess(
+        schema.responseSchema.mapper(parsedData)(mapperParam)
+      );
+    }
+
+    return Errors.createSuccess(parsedData);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Errors.createValidationError(
