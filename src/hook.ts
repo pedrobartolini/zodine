@@ -58,7 +58,11 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
   callParams: Types.CallSignature<T> & { lazy?: boolean }
 ): HookResponse<T, TError> {
-  const [data, setData] = useState<ResponseSchema.InferResult<
+  const [unmappedData, setUnmappedData] = useState<ResponseSchema.InferResult<
+    T["responseSchema"]
+  > | null>(null);
+
+  const [mappedData, setMappedData] = useState<ResponseSchema.InferResult<
     T["responseSchema"]
   > | null>(null);
   const [error, setError] = useState<Types.Errors<TError> | null>(null);
@@ -77,10 +81,10 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
     if (!hasAnyUndefined(callParams)) {
       const result = await requester(callParams);
       if (result.status === "success") {
-        setData(result.data);
+        setUnmappedData(result.data);
         setError(null);
       } else {
-        setData(null);
+        setUnmappedData(null);
         setError(result);
       }
       setLoading(false);
@@ -102,23 +106,22 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   }, [fetchData, callParams.lazy]);
 
   useEffect(() => {
-    if (data && mapperParams !== undefined) {
+    if (unmappedData) {
       const mapper = (requester as any).mapper as any;
       if (mapper) {
-        setData((prevData) => {
-          if (!prevData) return null;
-          return mapper(prevData)(mapperParams);
-        });
+        setMappedData(mapper(unmappedData)(mapperParams));
       }
     }
   }, [mapperParams]);
 
   const setter = useCallback(
     (nextData: ResponseSchema.InferResult<T["responseSchema"]>) => {
-      if (mapperParams) {
-        setData((requester as any).mapper(nextData)(mapperParams));
-      } else {
-        setData(nextData);
+      // const mapper = (requester as any).mapper as any;
+      // setMappedData(mapper(nextData)(mapperParams));
+
+      const mapper = (requester as any).mapper as any;
+      if (mapper) {
+        setMappedData(mapper(nextData)(mapperParams));
       }
     },
     [mapperParams]
@@ -127,12 +130,15 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   async function refresh(resetState?: boolean): Promise<boolean> {
     if (resetState) {
       setLoading(true);
-      setData(null);
+      setUnmappedData(null);
       setError(null);
     }
 
     return await fetchData();
   }
 
-  return [data, error, loading, refresh, setter] as HookResponse<T, TError>;
+  return [mappedData, error, loading, refresh, setter] as HookResponse<
+    T,
+    TError
+  >;
 }
