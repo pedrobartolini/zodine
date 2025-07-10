@@ -137,6 +137,7 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
     if (resetState) {
       setLoading(true);
       setUnmappedData(null);
+      setMappedData(null);
       setError(null);
     }
 
