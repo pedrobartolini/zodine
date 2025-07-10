@@ -1,0 +1,42 @@
+# Source files
+src/
+tsconfig.json
+
+# Development files
+.vscode/
+.prettierrc
+examples/
+node_modules/
+package-lock.json
+
+# Git files
+.git/
+.gitignore
+
+# Build artifacts
+*.tsbuildinfo
+
+# Tests
+**/*.test.ts
+**/*.spec.ts
+test/
+tests/
+
+# Documentation (except README)
+docs/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~

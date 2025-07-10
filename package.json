@@ -1,11 +1,44 @@
 {
   "name": "zodine",
-  "version": "1.0.0",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "version": "2.0.0",
+  "description": "A modern, type-safe REST API client builder for TypeScript/JavaScript applications with React hooks integration, automatic validation, and intelligent error handling.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "check-format": "prettier --check \"src/**/*.ts\"",
+    "verify": "node verify-build.js",
+    "pack-test": "npm pack --dry-run"
+  },
+  "keywords": [
+    "typescript",
+    "api",
+    "client",
+    "rest",
+    "react",
+    "hooks",
+    "validation",
+    "zod",
+    "type-safe"
+  ],
+  "author": "Pedro Bartolini",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pedrobartolini/zodine.git"
@@ -15,12 +48,22 @@
   },
   "homepage": "https://github.com/pedrobartolini/zodine#readme",
   "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "zod": ">=3.0.0"
+  },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-fast-compare": "^3.2.2",
-    "zod": "^3.25.67"
+    "react-fast-compare": "^3.2.2"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.0",
+    "react": "^19.1.0",
+    "zod": "^3.25.67",
+    "@types/react": "^18.2.0"
   }
 }

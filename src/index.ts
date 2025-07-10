@@ -1,5 +1,14 @@
 // Import the Errors type separately to avoid naming conflict
-export type { Errors } from "./types";
+export type {
+  CustomError,
+  Errors,
+  HttpMethod,
+  MapperError,
+  NetworkError,
+  ValidationError
+} from "./types";
+
+export type { RefreshFunction } from "./hook";
 
 // Import required modules for Zodine object
 import { ZodineBuilder } from "./core";
@@ -43,5 +52,5 @@ export default {
   /**
    * Create a new PATCH endpoint
    */
-  patch: Endpoints.patch,
+  patch: Endpoints.patch
 };
