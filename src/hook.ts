@@ -58,13 +58,9 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
   callParams: Types.CallSignature<T> & { lazy?: boolean }
 ): HookResponse<T, TError> {
-  const [unmappedData, setUnmappedData] = useState<ResponseSchema.InferResult<
-    T["responseSchema"]
-  > | null>(null);
+  const [unmappedData, setUnmappedData] = useState(null);
 
-  const [mappedData, setMappedData] = useState<ResponseSchema.InferResult<
-    T["responseSchema"]
-  > | null>(null);
+  const [mappedData, setMappedData] = useState(null);
   const [error, setError] = useState<Types.Errors<TError> | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -110,7 +106,7 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
       fetchData();
     } else if (loading) {
       // If in lazy mode, just set loading to false without fetching
-      setLoading(false);
+      // setLoading(false); // < --- dont do this, this corrupts the union integrity
     }
   }, [fetchData, callParams.lazy]);
 
