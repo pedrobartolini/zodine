@@ -109,25 +109,26 @@ export type MapperError = {
   error: Error;
 };
 
-export type Errors<T = string> = (
+export type Errors<T = string> =
   | ValidationError
   | NetworkError
   | CustomError<T>
-  | MapperError
+  | MapperError;
+
+export type ApiResponse<TData, TError = string> = (
+  | Success<TData>
+  | Errors<TError>
 ) & {
   endpoint: string;
   method: HttpMethod;
 };
 
-export type ApiResponse<TData, TError = string> =
-  | Success<TData>
-  | Errors<TError>;
-
 export type RequesterFunction<
   TSchema extends RequestSchema,
   TError = string
 > = ((
-  params: CallSignature<TSchema>
+  params: CallSignature<TSchema>,
+  dontMap?: boolean
 ) => Promise<
   ApiResponse<ResponseSchema.InferResult<TSchema["responseSchema"]>, TError>
 >) & {

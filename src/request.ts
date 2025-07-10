@@ -20,7 +20,10 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
   language: Language = "en"
 ): Types.RequesterFunction<TSchema, TError> {
   const translations = t(language);
-  const requester = async function (params: Types.CallSignature<TSchema>) {
+  const requester = async function (
+    params: Types.CallSignature<TSchema>,
+    dontMap?: boolean
+  ) {
     const promise = async (): Promise<
       Types.ApiResponse<
         ResponseSchema.InferResult<TSchema["responseSchema"]>,
@@ -139,17 +142,23 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
           language
         );
 
-        if (schema.responseSchema.mapper && validatedData.ok) {
+        if (schema.responseSchema.mapper && validatedData.ok && !dontMap) {
           try {
             validatedData.data = schema.responseSchema.mapper(
               validatedData.data
             )(params.map);
 
+            const nError = {
+              ...validatedData,
+              endpoint: url,
+              method: schema.method
+            };
+
             // Call postfetchCallback with successful result if provided
             if (postfetchCallback) {
-              await Promise.resolve(postfetchCallback(validatedData));
+              await Promise.resolve(postfetchCallback(nError));
             }
-            return validatedData;
+            return nError;
           } catch (error) {
             const mapperError = Errors.createMapperError(
               translations.errors.mapperError,

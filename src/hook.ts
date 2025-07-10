@@ -79,7 +79,7 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
 
   const fetchData = useDeepCompareCallback(async () => {
     if (!hasAnyUndefined(callParams)) {
-      const result = await requester(callParams);
+      const result = await requester(callParams, true);
       if (result.status === "success") {
         setUnmappedData(result.data);
 
