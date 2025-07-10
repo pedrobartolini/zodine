@@ -81,7 +81,11 @@ export function createMapperError(
  */
 export function isSuccess<T>(
   response: Types.ApiResponse<T, any>
-): response is Types.Success<T> & { toast: () => void } {
+): response is Types.Success<T> & {
+  toast: () => void;
+  endpoint: string;
+  method: Types.HttpMethod;
+} {
   return response.ok === true;
 }
 
@@ -90,6 +94,10 @@ export function isSuccess<T>(
  */
 export function isError<T>(
   response: Types.ApiResponse<any, T>
-): response is Types.Errors<T> & { toast: () => void } {
+): response is Types.Errors<T> & {
+  toast: () => void;
+  endpoint: string;
+  method: Types.HttpMethod;
+} {
   return response.ok === false;
 }
