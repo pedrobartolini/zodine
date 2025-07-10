@@ -9,6 +9,7 @@ A type-safe REST API client builder for TypeScript with React hooks and Zod vali
 - ⚡ **React Hooks** - Built-in React integration with loading states
 - 🛡️ **Validation** - Automatic request/response validation with Zod
 - 🎯 **Auto-completion** - Full IDE support
+- 🌍 **Internationalization** - Multi-language support for error messages
 
 ## Quick Start
 
@@ -123,6 +124,7 @@ const [user, error, loading, refresh] = api.users.getById.useHook({
 const api = Zodine.builder()
   .withHost("https://api.example.com")
   .withRoutes(routes)
+  .withLanguage("br") // Set language for error messages ("en" | "br")
   .withDefaultHeaders({
     Authorization: "Bearer <token>",
     "Content-Type": "application/json"
@@ -141,6 +143,42 @@ const api = Zodine.builder()
   .build();
 ```
 
+## Internationalization
+
+Zodine supports multiple languages for error messages. Currently supported languages:
+
+- `"en"` - English (default)
+- `"br"` - Portuguese (Brazil)
+
+```typescript
+// English error messages (default)
+const apiEnglish = Zodine.builder()
+  .withHost("https://api.example.com")
+  .withLanguage("en")
+  .withRoutes(routes)
+  .withApiError(async (response) => response.statusText)
+  .build();
+
+// Portuguese error messages
+const apiBrazilian = Zodine.builder()
+  .withHost("https://api.example.com")
+  .withLanguage("br")
+  .withRoutes(routes)
+  .withApiError(async (response) => response.statusText)
+  .build();
+
+// The language affects validation error messages
+const result = await apiBrazilian.users.create({
+  body: { name: "", email: "invalid" } // Will show Portuguese validation errors
+});
+```
+
+The language setting affects:
+
+- Validation error messages (invalid request body, headers, etc.)
+- Network error messages
+- Response validation errors
+
 ## Examples
 
 Check the `examples/` folder for comprehensive examples:
@@ -148,3 +186,4 @@ Check the `examples/` folder for comprehensive examples:
 - **`advanced-routes.ts`** - Complex route definitions with nested schemas
 - **`advanced-api.ts`** - Production-ready API client configuration
 - **`advanced-react.tsx`** - Real-world React patterns and state management
+- **`language-support.ts`** - Multi-language error message examples

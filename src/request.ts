@@ -1,5 +1,6 @@
 import * as Errors from "./errors";
 import * as ResponseSchema from "./response";
+import { Language, t } from "./translations";
 import * as Types from "./types";
 import * as Utils from "./utils";
 import * as Validation from "./validation";
@@ -15,8 +16,10 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
       >
     | undefined,
   defaultHeaders: Record<string, string> | undefined,
-  errorHandler: (response: Response) => Promise<TError>
+  errorHandler: (response: Response) => Promise<TError>,
+  language: Language = "en"
 ): Types.RequesterFunction<TSchema, TError> {
+  const translations = t(language);
   const requester = async function (params: Types.CallSignature<TSchema>) {
     const promise = async (): Promise<
       Types.ApiResponse<
@@ -26,7 +29,7 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
     > => {
       try {
         const [validatedParams, validationError] =
-          Validation.validateInputParams(schema, params);
+          Validation.validateInputParams(schema, params, language);
         if (validationError) {
           // Call postfetchCallback with validation error if provided
           const nError = {
@@ -88,7 +91,8 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
           url,
           schema,
           validatedParams,
-          defaultHeaders
+          defaultHeaders,
+          language
         );
 
         if ("error" in responseOrError) {
@@ -109,7 +113,8 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         if (!response.ok) {
           const errorResponse = await Utils.handleErrorResponse(
             response,
-            errorHandler
+            errorHandler,
+            language
           );
 
           const nError = {
@@ -130,7 +135,8 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         const validatedData = Validation.validateResponseData(
           schema,
           data,
-          params.map
+          params.map,
+          language
         );
 
         if (schema.responseSchema.mapper && validatedData.ok) {
@@ -146,7 +152,7 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
             return validatedData;
           } catch (error) {
             const mapperError = Errors.createMapperError(
-              "Erro ao aplicar o mapper na resposta.",
+              translations.errors.mapperError,
               error instanceof Error ? error : new Error(String(error))
             );
 
@@ -177,7 +183,7 @@ export function create<TSchema extends Types.RequestSchema, TError = string>(
         return nError;
       } catch (error) {
         const networkError = Errors.createNetworkError(
-          "Não foi possível completar a requisição.",
+          translations.errors.requestFailed,
           error instanceof Error ? error : new Error(String(error))
         );
 

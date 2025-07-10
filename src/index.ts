@@ -9,6 +9,7 @@ export type {
 } from "./types";
 
 export type { RefreshFunction } from "./hook";
+export type { Language } from "./translations";
 
 // Import required modules for Zodine object
 import { ZodineBuilder } from "./core";

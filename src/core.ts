@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as Hook from "./hook";
 import * as RequestCreator from "./request";
+import { Language } from "./translations";
 import * as Types from "./types";
 
 type RouteFunction<
@@ -38,7 +39,8 @@ function createNestedMethods<TError = string>(
   prefetchCallback: Types.PrefetchCallback | undefined,
   postfetchCallback: Types.PostfetchCallback<any, TError> | undefined,
   defaultHeaders: Record<string, string> | undefined,
-  errorHandler: (response: Response) => Promise<TError>
+  errorHandler: (response: Response) => Promise<TError>,
+  language: Language = "en"
 ) {
   // Store headers and update function references for use by setHeaders method
   let currentHeaders = defaultHeaders;
@@ -68,7 +70,8 @@ function createNestedMethods<TError = string>(
         prefetchCallback,
         postfetchCallback,
         currentHeaders,
-        errorHandler
+        errorHandler,
+        language
       );
       const hook = (params: any) =>
         Hook.useHook<any, TError>(requester, params);
@@ -84,7 +87,8 @@ function createNestedMethods<TError = string>(
         prefetchCallback,
         postfetchCallback,
         currentHeaders,
-        errorHandler
+        errorHandler,
+        language
       );
     }
   }
@@ -101,7 +105,8 @@ function createNestedMethods<TError = string>(
         prefetchCallback,
         postfetchCallback,
         headers,
-        errorHandler
+        errorHandler,
+        language
       );
       const hook = (params: any) =>
         Hook.useHook<any, TError>(requester, params);
@@ -140,6 +145,7 @@ export class ZodineBuilder<
   private postfetchCallback?: Types.PostfetchCallback<any, TError>;
   private defaultHeaders?: Record<string, string>;
   private errorHandler?: (response: Response) => Promise<TError>;
+  private language: Language = "en"; // Default language
 
   /**
    * Set the host URL for API requests
@@ -160,6 +166,7 @@ export class ZodineBuilder<
     builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
+    builder.language = this.language;
     return builder;
   }
 
@@ -182,6 +189,7 @@ export class ZodineBuilder<
     builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
+    builder.language = this.language;
     return builder;
   }
 
@@ -198,6 +206,7 @@ export class ZodineBuilder<
     builder.postfetchCallback = undefined; // Reset postfetch as error type changed
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = errorHandler;
+    builder.language = this.language;
     return builder;
   }
 
@@ -220,6 +229,7 @@ export class ZodineBuilder<
     builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
+    builder.language = this.language;
     return builder;
   }
 
@@ -242,6 +252,7 @@ export class ZodineBuilder<
     builder.postfetchCallback = callback;
     builder.defaultHeaders = this.defaultHeaders;
     builder.errorHandler = this.errorHandler;
+    builder.language = this.language;
     return builder;
   }
 
@@ -264,6 +275,30 @@ export class ZodineBuilder<
     builder.postfetchCallback = this.postfetchCallback;
     builder.defaultHeaders = headers;
     builder.errorHandler = this.errorHandler;
+    builder.language = this.language;
+    return builder;
+  }
+
+  /**
+   * Set the language for error messages and validation
+   */
+  withLanguage(
+    language: Language
+  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<
+      TRoutes,
+      TError,
+      THasHost,
+      THasRoutes,
+      THasErrorHandler
+    >();
+    builder.host = this.host;
+    builder.routes = this.routes;
+    builder.prefetchCallback = this.prefetchCallback;
+    builder.postfetchCallback = this.postfetchCallback;
+    builder.defaultHeaders = this.defaultHeaders;
+    builder.errorHandler = this.errorHandler;
+    builder.language = language;
     return builder;
   }
 
@@ -298,7 +333,8 @@ export class ZodineBuilder<
       this.prefetchCallback,
       this.postfetchCallback,
       this.defaultHeaders,
-      this.errorHandler as (response: Response) => Promise<TError>
+      this.errorHandler as (response: Response) => Promise<TError>,
+      this.language
     );
     return apiMethods as any;
   }

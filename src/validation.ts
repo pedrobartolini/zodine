@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import * as Errors from "./errors";
 import * as ResponseSchema from "./response";
+import { Language, t } from "./translations";
 import * as Types from "./types";
 
 function validateWithSchema<T>(
@@ -23,15 +24,17 @@ type ValidationResult<T> = [T, null] | [null, Types.ValidationError];
 
 export function validateInputParams<T extends Types.RequestSchema>(
   schema: T,
-  params: Types.RequesterParams<T>
+  params: Types.RequesterParams<T>,
+  language: Language = "en"
 ): ValidationResult<Types.RequesterParams<T>> {
+  const translations = t(language);
   const next = { ...params };
 
   if (schema.bodySchema && params.body) {
     const [parsed, error] = validateWithSchema(
       schema.bodySchema,
       params.body,
-      "Invalid request body"
+      translations.validation.invalidRequestBody
     );
     if (error) return [null, error];
     next.body = parsed;
@@ -40,7 +43,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
     const [parsed, error] = validateWithSchema(
       schema.formDataSchema,
       params.formData,
-      "Invalid form data"
+      translations.validation.invalidFormData
     );
     if (error) return [null, error];
     next.formData = parsed;
@@ -49,7 +52,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
     const [parsed, error] = validateWithSchema(
       schema.querySchema,
       params.query,
-      "Invalid query parameters"
+      translations.validation.invalidQueryParameters
     );
     if (error) return [null, error];
     next.query = parsed;
@@ -58,7 +61,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
     const [parsed, error] = validateWithSchema(
       schema.headersSchema,
       params.headers,
-      "Invalid headers"
+      translations.validation.invalidHeaders
     );
     if (error) return [null, error];
     next.headers = parsed;
@@ -67,7 +70,7 @@ export function validateInputParams<T extends Types.RequestSchema>(
     const [parsed, error] = validateWithSchema(
       schema.pathSchema,
       params.path,
-      "Invalid URL parameters"
+      translations.validation.invalidUrlParameters
     );
     if (error) return [null, error];
     next.path = parsed;
@@ -79,10 +82,12 @@ export function validateInputParams<T extends Types.RequestSchema>(
 export function validateResponseData<T extends Types.RequestSchema>(
   schema: T,
   data: unknown,
-  mapperParam?: ResponseSchema.InferMapperArg<T>
+  mapperParam?: ResponseSchema.InferMapperArg<T>,
+  language: Language = "en"
 ):
   | Types.Success<ResponseSchema.InferResult<T["responseSchema"]>>
   | Types.ValidationError {
+  const translations = t(language);
   try {
     const parsedData = schema.responseSchema.schema.parse(data);
     const finalData = schema.responseSchema.mapper
@@ -94,7 +99,7 @@ export function validateResponseData<T extends Types.RequestSchema>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Errors.createValidationError(
-        "Não foi possível validar a resposta.",
+        translations.validation.invalidResponse,
         error
       );
     }

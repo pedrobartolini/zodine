@@ -1,4 +1,5 @@
 import * as Errors from "./errors";
+import { Language, t } from "./translations";
 import * as Types from "./types";
 
 export function buildUrl<T extends Types.RequestSchema>(
@@ -26,8 +27,10 @@ export async function executeRequest<T extends Types.RequestSchema>(
   url: string,
   schema: T,
   params: Types.RequesterParams<T>,
-  defaultHeaders?: Record<string, string>
+  defaultHeaders?: Record<string, string>,
+  language: Language = "en"
 ): Promise<Response | Types.NetworkError> {
+  const translations = t(language);
   const headers = new Headers({ ...defaultHeaders });
   if (schema.headersSchema && params.headers) {
     for (const [key, value] of Object.entries(
@@ -62,11 +65,11 @@ export async function executeRequest<T extends Types.RequestSchema>(
     return await fetch(url, {
       method: schema.method,
       headers: headers,
-      body: body,
+      body: body
     });
   } catch (error) {
     return Errors.createNetworkError(
-      "Não foi possível completar a requisição.",
+      translations.errors.requestFailed,
       error instanceof Error ? error : new Error(String(error))
     );
   }
@@ -74,8 +77,10 @@ export async function executeRequest<T extends Types.RequestSchema>(
 
 export async function handleErrorResponse<TError = string>(
   response: Response,
-  errorHandler?: (response: Response) => Promise<TError>
+  errorHandler?: (response: Response) => Promise<TError>,
+  language: Language = "en"
 ): Promise<Types.CustomError<TError>> {
+  const translations = t(language);
   let data: TError;
   let message: string;
 
@@ -94,7 +99,7 @@ export async function handleErrorResponse<TError = string>(
         data = errorText as TError;
         message = errorText;
       } else {
-        throw new Error("Invalid error message format");
+        throw new Error(translations.errors.invalidErrorFormat);
       }
     } catch {
       data = `API error ${response.status}: ${response.statusText}` as TError;
