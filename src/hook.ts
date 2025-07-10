@@ -82,9 +82,18 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
       const result = await requester(callParams);
       if (result.status === "success") {
         setUnmappedData(result.data);
+
+        const mapper = (requester as any).mapper as any;
+        if (mapper) {
+          setMappedData(mapper(result.data)(mapperParams));
+        } else {
+          setMappedData(result.data);
+        }
+
         setError(null);
       } else {
         setUnmappedData(null);
+        setMappedData(null);
         setError(result);
       }
       setLoading(false);
@@ -110,18 +119,19 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
       const mapper = (requester as any).mapper as any;
       if (mapper) {
         setMappedData(mapper(unmappedData)(mapperParams));
+      } else {
+        setMappedData(unmappedData);
       }
     }
   }, [mapperParams]);
 
   const setter = useCallback(
     (nextData: ResponseSchema.InferResult<T["responseSchema"]>) => {
-      // const mapper = (requester as any).mapper as any;
-      // setMappedData(mapper(nextData)(mapperParams));
-
       const mapper = (requester as any).mapper as any;
       if (mapper) {
         setMappedData(mapper(nextData)(mapperParams));
+      } else {
+        setMappedData(nextData);
       }
     },
     [mapperParams]
