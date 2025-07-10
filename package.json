@@ -1,6 +1,6 @@
 {
   "name": "zodine",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A modern, type-safe REST API client builder for TypeScript/JavaScript applications with React hooks integration, automatic validation, and intelligent error handling.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
