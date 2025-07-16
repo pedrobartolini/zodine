@@ -26,14 +26,12 @@ function useDeepCompareCallback<T extends (...args: any[]) => any>(fn: T, deps: 
 }
 
 export type RefreshFunction = (resetState?: boolean) => Promise<boolean>;
-type SetterFunction<T extends Types.RequestSchema> = (
-  callback: (prev: ResponseSchema.InferResult<T["responseSchema"]>) => ResponseSchema.InferResult<T["responseSchema"]>
-) => void;
+type SetterFunction<T> = (callback: (prev: T) => T) => void;
 
 export type HookResponse<T extends Types.RequestSchema, TError = string> =
-  | [ResponseSchema.InferResult<T["responseSchema"]>, null, false, RefreshFunction, SetterFunction<T>]
-  | [null, Types.Errors<TError>, false, RefreshFunction, SetterFunction<T>]
-  | [null, null, true, RefreshFunction, SetterFunction<T>];
+  | [ResponseSchema.InferResult<T["responseSchema"]>, null, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
+  | [null, Types.Errors<TError>, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
+  | [null, null, true, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>];
 
 export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
