@@ -53,11 +53,11 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   const mapperParams = useDeepCompareMemo(callParams.map);
 
   const fetchData = useDeepCompareCallback(async () => {
-    setLoading(true);
     const result = await requester({ ...callParams, skipMapper: true, preventFetchingWithUndefinedParams: true });
 
     if (!result.ok) {
       if (result.status === "undefined_param") {
+        setLoading(true);
         setUnmappedData(null);
         setMappedData(null);
         setError(null);
