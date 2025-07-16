@@ -26,20 +26,21 @@ function useDeepCompareCallback<T extends (...args: any[]) => any>(fn: T, deps: 
 }
 
 export type RefreshFunction = (resetState?: boolean) => Promise<boolean>;
-type SetterFunction<T> = (newData: T) => void;
+type SetterFunction<T extends Types.RequestSchema> = (
+  callback: (prev: ResponseSchema.InferResult<T["responseSchema"]>) => ResponseSchema.InferResult<T["responseSchema"]>
+) => void;
 
 export type HookResponse<T extends Types.RequestSchema, TError = string> =
-  | [ResponseSchema.InferResult<T["responseSchema"]>, null, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
-  | [null, Types.Errors<TError>, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
-  | [null, null, true, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>];
+  | [ResponseSchema.InferResult<T["responseSchema"]>, null, false, RefreshFunction, SetterFunction<T>]
+  | [null, Types.Errors<TError>, false, RefreshFunction, SetterFunction<T>]
+  | [null, null, true, RefreshFunction, SetterFunction<T>];
 
 export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
   callParams: Types.CallSignature<T> & { lazy?: boolean }
 ): HookResponse<T, TError> {
   const [unmappedData, setUnmappedData] = useState(null);
-
-  const [mappedData, setMappedData] = useState(null);
+  const [mappedData, setMappedData] = useState<unknown | null>(null);
   const [error, setError] = useState<Types.Errors<TError> | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -102,13 +103,17 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   }, [mapperParams]);
 
   const setter = useCallback(
-    (nextData: ResponseSchema.InferResult<T["responseSchema"]>) => {
-      const mapper = (requester as any).mapper as any;
-      if (mapper) {
-        setMappedData(mapper(nextData)(mapperParams));
-      } else {
-        setMappedData(nextData);
-      }
+    (callback: (prev: ResponseSchema.InferResult<T["responseSchema"]>) => ResponseSchema.InferResult<T["responseSchema"]>) => {
+      setMappedData((prev: any) => {
+        if (prev === null) return null;
+
+        const next = callback(prev);
+
+        const mapper = (requester as any).mapper as any;
+        if (mapper) return mapper(next)(mapperParams);
+
+        return next;
+      });
     },
     [mapperParams]
   );
