@@ -56,10 +56,7 @@ const testApi = Zodine.builder()
         break;
 
       case "api_error":
-        console.error(
-          `🔴 [${timestamp}] API Error [${response.code}]:`,
-          response.data
-        );
+        console.error(`🔴 [${timestamp}] API Error [${response.code}]:`, response.data);
 
         // Handle specific HTTP status codes
         if (response.code === 401) {
@@ -92,6 +89,8 @@ const testApi = Zodine.builder()
   })
   .build();
 
-testApi.photos.getByAlbum({ path: { albumId: 1 } });
+const x = await testApi.photos.getByAlbum({ path: { albumId: 1 }, preventFetchingWithUndefinedParams: false });
+
+console.log(x);
 
 export default testApi;

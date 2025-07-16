@@ -13,6 +13,7 @@ export interface Translations {
     requestFailed: string;
     mapperError: string;
     invalidErrorFormat: string;
+    undefinedParams: string;
   };
   builder: {
     hostRequired: string;
@@ -34,13 +35,13 @@ const translations: Record<Language, Translations> = {
     errors: {
       requestFailed: "Unable to complete the request",
       mapperError: "Error applying mapper to response",
-      invalidErrorFormat: "Invalid error message format"
+      invalidErrorFormat: "Invalid error message format",
+      undefinedParams: "Undefined parameters present"
     },
     builder: {
       hostRequired: "❌ Host is required - use .withHost() first",
       routesRequired: "❌ Routes are required - use .withRoutes() first",
-      errorHandlerRequired:
-        "❌ Error handler is required - use .withErrorHandler() first"
+      errorHandlerRequired: "❌ Error handler is required - use .withErrorHandler() first"
     }
   },
   br: {
@@ -55,13 +56,13 @@ const translations: Record<Language, Translations> = {
     errors: {
       requestFailed: "Não foi possível completar a requisição",
       mapperError: "Erro ao aplicar o mapper na resposta",
-      invalidErrorFormat: "Formato de mensagem de erro inválido"
+      invalidErrorFormat: "Formato de mensagem de erro inválido",
+      undefinedParams: "Parâmetros 'undefined' presentes"
     },
     builder: {
       hostRequired: "❌ Host é obrigatório - use .withHost() primeiro",
       routesRequired: "❌ Rotas são obrigatórias - use .withRoutes() primeiro",
-      errorHandlerRequired:
-        "❌ Manipulador de erro é obrigatório - use .withErrorHandler() primeiro"
+      errorHandlerRequired: "❌ Manipulador de erro é obrigatório - use .withErrorHandler() primeiro"
     }
   }
 };

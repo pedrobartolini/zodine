@@ -4,24 +4,12 @@ import * as RequestCreator from "./request";
 import { Language } from "./translations";
 import * as Types from "./types";
 
-type RouteFunction<
-  T extends Types.RequestSchema<any>,
-  TError = string
-> = Types.RequesterFunction<T, TError> & {
-  useHook: (
-    params: Types.CallSignature<T> & { lazy?: boolean }
-  ) => Hook.HookResponse<T, TError>;
+type RouteFunction<T extends Types.RequestSchema<any>, TError = string> = Types.RequesterFunction<T, TError> & {
+  useHook: (params: Types.CallSignature<T>) => Hook.HookResponse<T, TError>;
 };
 
-export type GenerateApiMethods<
-  T extends Types.RouteDefinitions,
-  TError = string
-> = {
-  [K in keyof T]: T[K] extends Types.RequestSchema<any>
-    ? RouteFunction<T[K], TError>
-    : T[K] extends Types.RouteDefinitions
-      ? GenerateApiMethods<T[K], TError>
-      : never;
+export type GenerateApiMethods<T extends Types.RouteDefinitions, TError = string> = {
+  [K in keyof T]: T[K] extends Types.RequestSchema<any> ? RouteFunction<T[K], TError> : T[K] extends Types.RouteDefinitions ? GenerateApiMethods<T[K], TError> : never;
 } & {
   /**
    * Update default headers for all requests in this API instance
@@ -56,40 +44,19 @@ function createNestedMethods<TError = string>(
         formDataSchema: z.any().optional(),
         querySchema: z.any().optional(),
         headersSchema: z.any().optional(),
-        responseSchema: z.object({
-          schema: z.any(),
-          mapper: z.function().args(z.any()).returns(z.any()).optional()
-        })
+        responseSchema: z.object({ schema: z.any(), mapper: z.function().args(z.any()).returns(z.any()).optional() })
       })
       .safeParse(routeValue).success;
 
     if (isRequestSchema) {
-      const requester = RequestCreator.create(
-        host,
-        routeValue as any,
-        prefetchCallback,
-        postfetchCallback,
-        currentHeaders,
-        errorHandler,
-        language
-      );
-      const hook = (params: any) =>
-        Hook.useHook<any, TError>(requester, params);
+      const requester = RequestCreator.create(host, routeValue as any, prefetchCallback, postfetchCallback, currentHeaders, errorHandler, language);
+      const hook = (params: any) => Hook.useHook<any, TError>(requester, params);
       (requester as any).useHook = hook;
       target[routeName] = requester;
       updateTargets.push({ target: routeName, schema: routeValue });
     } else if (typeof routeValue === "object" && routeValue !== null) {
       target[routeName] = {};
-      createNestedMethods(
-        host,
-        routeValue as Types.RouteDefinitions,
-        target[routeName],
-        prefetchCallback,
-        postfetchCallback,
-        currentHeaders,
-        errorHandler,
-        language
-      );
+      createNestedMethods(host, routeValue as Types.RouteDefinitions, target[routeName], prefetchCallback, postfetchCallback, currentHeaders, errorHandler, language);
     }
   }
 
@@ -99,30 +66,15 @@ function createNestedMethods<TError = string>(
 
     // Update existing routes with new headers
     for (const item of updateTargets) {
-      const requester = RequestCreator.create(
-        host,
-        item.schema as any,
-        prefetchCallback,
-        postfetchCallback,
-        headers,
-        errorHandler,
-        language
-      );
-      const hook = (params: any) =>
-        Hook.useHook<any, TError>(requester, params);
+      const requester = RequestCreator.create(host, item.schema as any, prefetchCallback, postfetchCallback, headers, errorHandler, language);
+      const hook = (params: any) => Hook.useHook<any, TError>(requester, params);
       (requester as any).useHook = hook;
       target[item.target] = requester;
     }
 
     // Update headers for nested objects
     for (const key in target) {
-      if (
-        target.hasOwnProperty(key) &&
-        typeof target[key] === "object" &&
-        target[key] !== null &&
-        typeof target[key].setHeaders === "function" &&
-        key !== "setHeaders"
-      ) {
+      if (target.hasOwnProperty(key) && typeof target[key] === "object" && target[key] !== null && typeof target[key].setHeaders === "function" && key !== "setHeaders") {
         target[key].setHeaders(headers);
       }
     }
@@ -150,16 +102,8 @@ export class ZodineBuilder<
   /**
    * Set the host URL for API requests
    */
-  withHost(
-    host: string
-  ): ZodineBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      TRoutes,
-      TError,
-      true,
-      THasRoutes,
-      THasErrorHandler
-    >();
+  withHost(host: string): ZodineBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<TRoutes, TError, true, THasRoutes, THasErrorHandler>();
     builder.host = host;
     builder.routes = this.routes;
     builder.prefetchCallback = this.prefetchCallback;
@@ -173,16 +117,8 @@ export class ZodineBuilder<
   /**
    * Set the route definitions with proper type inference
    */
-  withRoutes<T extends Types.RouteDefinitions>(
-    routes: T
-  ): ZodineBuilder<T, TError, THasHost, true, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      T,
-      TError,
-      THasHost,
-      true,
-      THasErrorHandler
-    >();
+  withRoutes<T extends Types.RouteDefinitions>(routes: T): ZodineBuilder<T, TError, THasHost, true, THasErrorHandler> {
+    const builder = new ZodineBuilder<T, TError, THasHost, true, THasErrorHandler>();
     builder.host = this.host;
     builder.routes = routes;
     builder.prefetchCallback = this.prefetchCallback;
@@ -196,9 +132,7 @@ export class ZodineBuilder<
   /**
    * Set the error handler with proper type inference
    */
-  withApiError<T>(
-    errorHandler: (response: Response) => Promise<T>
-  ): ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true> {
+  withApiError<T>(errorHandler: (response: Response) => Promise<T>): ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true> {
     const builder = new ZodineBuilder<TRoutes, T, THasHost, THasRoutes, true>();
     builder.host = this.host;
     builder.routes = this.routes;
@@ -213,16 +147,8 @@ export class ZodineBuilder<
   /**
    * Set the prefetch callback that runs before each request
    */
-  withPrefetch(
-    callback: Types.PrefetchCallback
-  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      TRoutes,
-      TError,
-      THasHost,
-      THasRoutes,
-      THasErrorHandler
-    >();
+  withPrefetch(callback: Types.PrefetchCallback): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler>();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.prefetchCallback = callback;
@@ -236,16 +162,8 @@ export class ZodineBuilder<
   /**
    * Set the postfetch callback that runs after each request
    */
-  withPostfetch(
-    callback: Types.PostfetchCallback<any, TError>
-  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      TRoutes,
-      TError,
-      THasHost,
-      THasRoutes,
-      THasErrorHandler
-    >();
+  withPostfetch(callback: Types.PostfetchCallback<any, TError>): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler>();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.prefetchCallback = this.prefetchCallback;
@@ -259,16 +177,8 @@ export class ZodineBuilder<
   /**
    * Set default headers for all requests
    */
-  withDefaultHeaders(
-    headers: Record<string, string>
-  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      TRoutes,
-      TError,
-      THasHost,
-      THasRoutes,
-      THasErrorHandler
-    >();
+  withDefaultHeaders(headers: Record<string, string>): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler>();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.prefetchCallback = this.prefetchCallback;
@@ -282,16 +192,8 @@ export class ZodineBuilder<
   /**
    * Set the language for error messages and validation
    */
-  withLanguage(
-    language: Language
-  ): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
-    const builder = new ZodineBuilder<
-      TRoutes,
-      TError,
-      THasHost,
-      THasRoutes,
-      THasErrorHandler
-    >();
+  withLanguage(language: Language): ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler> {
+    const builder = new ZodineBuilder<TRoutes, TError, THasHost, THasRoutes, THasErrorHandler>();
     builder.host = this.host;
     builder.routes = this.routes;
     builder.prefetchCallback = this.prefetchCallback;
@@ -318,13 +220,7 @@ export class ZodineBuilder<
         : THasErrorHandler extends false
           ? ["❌ Error handler is required - use .withErrorHandler() first"]
           : []
-  ): THasHost extends true
-    ? THasRoutes extends true
-      ? THasErrorHandler extends true
-        ? GenerateApiMethods<TRoutes, TError>
-        : never
-      : never
-    : never {
+  ): THasHost extends true ? (THasRoutes extends true ? (THasErrorHandler extends true ? GenerateApiMethods<TRoutes, TError> : never) : never) : never {
     const apiMethods: any = {};
     createNestedMethods(
       this.host as string,

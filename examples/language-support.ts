@@ -102,10 +102,4 @@ const anotherApi = Zodine.builder()
   })
   .build();
 
-export {
-  anotherApi,
-  apiBrazilian,
-  apiEnglish,
-  demonstrateLanguageSupport,
-  flexibleApi
-};
+export { anotherApi, apiBrazilian, apiEnglish, demonstrateLanguageSupport, flexibleApi };

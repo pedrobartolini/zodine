@@ -5,11 +5,7 @@ import * as ResponseSchema from "./response";
 import { Language, t } from "./translations";
 import * as Types from "./types";
 
-function validateWithSchema<T>(
-  schema: z.ZodSchema<T>,
-  value: unknown,
-  errorMessage: string
-): [T | null, Types.ValidationError | null] {
+function validateWithSchema<T>(schema: z.ZodSchema<T>, value: unknown, errorMessage: string): [T | null, Types.ValidationError | null] {
   try {
     return [schema.parse(value), null];
   } catch (error) {
@@ -31,47 +27,27 @@ export function validateInputParams<T extends Types.RequestSchema>(
   const next = { ...params };
 
   if (schema.bodySchema && params.body) {
-    const [parsed, error] = validateWithSchema(
-      schema.bodySchema,
-      params.body,
-      translations.validation.invalidRequestBody
-    );
+    const [parsed, error] = validateWithSchema(schema.bodySchema, params.body, translations.validation.invalidRequestBody);
     if (error) return [null, error];
     next.body = parsed;
   }
   if (schema.formDataSchema && params.formData) {
-    const [parsed, error] = validateWithSchema(
-      schema.formDataSchema,
-      params.formData,
-      translations.validation.invalidFormData
-    );
+    const [parsed, error] = validateWithSchema(schema.formDataSchema, params.formData, translations.validation.invalidFormData);
     if (error) return [null, error];
     next.formData = parsed;
   }
   if (schema.querySchema && params.query) {
-    const [parsed, error] = validateWithSchema(
-      schema.querySchema,
-      params.query,
-      translations.validation.invalidQueryParameters
-    );
+    const [parsed, error] = validateWithSchema(schema.querySchema, params.query, translations.validation.invalidQueryParameters);
     if (error) return [null, error];
     next.query = parsed;
   }
   if (schema.headersSchema && params.headers) {
-    const [parsed, error] = validateWithSchema(
-      schema.headersSchema,
-      params.headers,
-      translations.validation.invalidHeaders
-    );
+    const [parsed, error] = validateWithSchema(schema.headersSchema, params.headers, translations.validation.invalidHeaders);
     if (error) return [null, error];
     next.headers = parsed;
   }
   if (schema.pathSchema && params.path) {
-    const [parsed, error] = validateWithSchema(
-      schema.pathSchema,
-      params.path,
-      translations.validation.invalidUrlParameters
-    );
+    const [parsed, error] = validateWithSchema(schema.pathSchema, params.path, translations.validation.invalidUrlParameters);
     if (error) return [null, error];
     next.path = parsed;
   }
@@ -85,26 +61,19 @@ export function validateResponseData<T extends Types.RequestSchema>(
   mapperParam: ResponseSchema.InferMapperArg<T> | undefined,
   doMapping: boolean,
   language: Language = "en"
-):
-  | Types.Success<ResponseSchema.InferResult<T["responseSchema"]>>
-  | Types.ValidationError {
+): Types.Success<ResponseSchema.InferResult<T["responseSchema"]>> | Types.ValidationError {
   const translations = t(language);
   try {
     const parsedData = schema.responseSchema.schema.parse(data);
 
     if (doMapping && schema.responseSchema.mapper) {
-      return Errors.createSuccess(
-        schema.responseSchema.mapper(parsedData)(mapperParam)
-      );
+      return Errors.createSuccess(schema.responseSchema.mapper(parsedData)(mapperParam));
     }
 
     return Errors.createSuccess(parsedData);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return Errors.createValidationError(
-        translations.validation.invalidResponse,
-        error
-      );
+      return Errors.createValidationError(translations.validation.invalidResponse, error);
     }
     throw error;
   }

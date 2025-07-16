@@ -197,19 +197,14 @@ const photos = {
   getByAlbum: Zodine.get({
     endpoint: "/albums/:albumId/photos",
     pathSchema: z.object({
-      albumId: z.number().int()
+      albumId: z
+        .number()
+        .int()
+        .optional()
+        .transform((val) => undefined)
     }),
-    responseSchema: Zodine.response(photoSchema.array(), (data) => () => "")
+    responseSchema: Zodine.response(photoSchema.array())
   })
 };
 
-export {
-  albums,
-  albumSchema,
-  comments,
-  commentSchema,
-  photos,
-  photoSchema,
-  users,
-  userSchema
-};
+export { albums, albumSchema, comments, commentSchema, photos, photoSchema, users, userSchema };

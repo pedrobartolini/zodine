@@ -20,10 +20,7 @@ function useDeepCompareMemo<T>(value: T): T {
   return ref.current;
 }
 
-function useDeepCompareCallback<T extends (...args: any[]) => any>(
-  fn: T,
-  deps: any[]
-): T {
+function useDeepCompareCallback<T extends (...args: any[]) => any>(fn: T, deps: any[]): T {
   const memoDeps = useDeepCompareMemo(deps);
   return useCallback(fn, memoDeps);
 }
@@ -32,27 +29,9 @@ export type RefreshFunction = (resetState?: boolean) => Promise<boolean>;
 type SetterFunction<T> = (newData: T) => void;
 
 export type HookResponse<T extends Types.RequestSchema, TError = string> =
-  | [
-      ResponseSchema.InferResult<T["responseSchema"]>,
-      null,
-      false,
-      RefreshFunction,
-      SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>
-    ]
-  | [
-      null,
-      Types.Errors<TError>,
-      false,
-      RefreshFunction,
-      SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>
-    ]
-  | [
-      null,
-      null,
-      true,
-      RefreshFunction,
-      SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>
-    ];
+  | [ResponseSchema.InferResult<T["responseSchema"]>, null, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
+  | [null, Types.Errors<TError>, false, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>]
+  | [null, null, true, RefreshFunction, SetterFunction<ResponseSchema.InferResult<T["responseSchema"]>>];
 
 export function useHook<T extends Types.RequestSchema, TError = string>(
   requester: Types.RequesterFunction<T, TError>,
@@ -74,34 +53,30 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
   const mapperParams = useDeepCompareMemo(callParams.map);
 
   const fetchData = useDeepCompareCallback(async () => {
-    if (hasAnyUndefined(callParams)) {
-      setLoading(true);
-      setUnmappedData(null);
-      setMappedData(null);
-      setError(null);
-    } else {
-      const result = await requester(callParams, true);
-      if (result.status === "success") {
-        setUnmappedData(result.data);
+    setLoading(true);
+    const result = await requester({ ...callParams, skipMapper: true, preventFetchingWithUndefinedParams: true });
 
-        const mapper = (requester as any).mapper as any;
-        if (mapper) {
-          setMappedData(mapper(result.data)(mapperParams));
-        } else {
-          setMappedData(result.data);
-        }
-
-        setError(null);
-      } else {
+    if (!result.ok) {
+      if (result.status === "undefined_param") {
         setUnmappedData(null);
         setMappedData(null);
-        setError(result);
+        setError(null);
+        return true;
       }
-      setLoading(false);
 
-      return result.ok;
+      setUnmappedData(null);
+      setMappedData(null);
+      setError(result);
+      setLoading(false);
+      return false;
     }
 
+    const mapper = (requester as any).mapper as any;
+    const mappedData = mapper ? mapper(result.data)(mapperParams) : result.data;
+    setUnmappedData(result.data);
+    setMappedData(mappedData);
+    setError(null);
+    setLoading(false);
     return true;
   }, [requester, requestParams]);
 
@@ -149,8 +124,5 @@ export function useHook<T extends Types.RequestSchema, TError = string>(
     return await fetchData();
   }
 
-  return [mappedData, error, loading, refresh, setter] as HookResponse<
-    T,
-    TError
-  >;
+  return [mappedData, error, loading, refresh, setter] as HookResponse<T, TError>;
 }

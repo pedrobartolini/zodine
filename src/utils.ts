@@ -2,24 +2,14 @@ import * as Errors from "./errors";
 import { Language, t } from "./translations";
 import * as Types from "./types";
 
-export function buildUrl<T extends Types.RequestSchema>(
-  host: string,
-  schema: T,
-  params: Types.RequesterParams<T>
-): string {
+export function buildUrl<T extends Types.RequestSchema>(host: string, schema: T, params: Types.RequesterParams<T>): string {
   let url = schema.endpoint;
   if (schema.pathSchema && params.path) {
-    for (const [key, value] of Object.entries(
-      params.path as Record<string, string>
-    )) {
+    for (const [key, value] of Object.entries(params.path as Record<string, string>)) {
       url = url.replace(`:${key}`, encodeURIComponent(String(value)));
     }
   }
-  const queryString = params.query
-    ? `?${new URLSearchParams(
-        params.query as Record<string, string>
-      ).toString()}`
-    : "";
+  const queryString = params.query ? `?${new URLSearchParams(params.query as Record<string, string>).toString()}` : "";
   return `${host}${url}${queryString}`;
 }
 
@@ -33,9 +23,7 @@ export async function executeRequest<T extends Types.RequestSchema>(
   const translations = t(language);
   const headers = new Headers({ ...defaultHeaders });
   if (schema.headersSchema && params.headers) {
-    for (const [key, value] of Object.entries(
-      params.headers as Record<string, string>
-    )) {
+    for (const [key, value] of Object.entries(params.headers as Record<string, string>)) {
       headers.append(key, String(value));
     }
   }
@@ -62,16 +50,9 @@ export async function executeRequest<T extends Types.RequestSchema>(
   }
 
   try {
-    return await fetch(url, {
-      method: schema.method,
-      headers: headers,
-      body: body
-    });
+    return await fetch(url, { method: schema.method, headers: headers, body: body });
   } catch (error) {
-    return Errors.createNetworkError(
-      translations.errors.requestFailed,
-      error instanceof Error ? error : new Error(String(error))
-    );
+    return Errors.createNetworkError(translations.errors.requestFailed, error instanceof Error ? error : new Error(String(error)));
   }
 }
 

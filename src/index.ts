@@ -1,12 +1,5 @@
 // Import the Errors type separately to avoid naming conflict
-export type {
-  CustomError,
-  Errors,
-  HttpMethod,
-  MapperError,
-  NetworkError,
-  ValidationError
-} from "./types";
+export type { CustomError, Errors, HttpMethod, MapperError, NetworkError, ValidationError } from "./types";
 
 export type { RefreshFunction } from "./hook";
 export type { Language } from "./translations";

@@ -4,9 +4,7 @@ import testApi from "./advanced-api";
 // Advanced React example showing complex state management
 export function AdvancedUserManagement() {
   const [users, error, loading, refresh] = testApi.users.getAll.useHook({});
-  const [selectedUserId, setSelectedUserId] = React.useState<number | null>(
-    null
-  );
+  const [selectedUserId, setSelectedUserId] = React.useState<number | null>(null);
   const [showCreateForm, setShowCreateForm] = React.useState(false);
 
   // Handle user selection
@@ -38,9 +36,7 @@ export function AdvancedUserManagement() {
       <header className="header">
         <h1>User Management</h1>
         <div className="actions">
-          <button onClick={() => setShowCreateForm(!showCreateForm)}>
-            {showCreateForm ? "Cancel" : "Add User"}
-          </button>
+          <button onClick={() => setShowCreateForm(!showCreateForm)}>{showCreateForm ? "Cancel" : "Add User"}</button>
           <button onClick={() => refresh()}>Refresh</button>
         </div>
       </header>
@@ -59,11 +55,7 @@ export function AdvancedUserManagement() {
           <h2>Users ({users.length})</h2>
           <div className="users-grid">
             {users.map((user) => (
-              <div
-                key={user.id}
-                className={`user-card ${selectedUserId === user.id ? "selected" : ""}`}
-                onClick={() => handleUserSelect(user.id)}
-              >
+              <div key={user.id} className={`user-card ${selectedUserId === user.id ? "selected" : ""}`} onClick={() => handleUserSelect(user.id)}>
                 <h3>{user.name}</h3>
                 <p>{user.email}</p>
                 <p>@{user.username}</p>
@@ -89,10 +81,9 @@ function UserDetails({ userId }: { userId: number }) {
     path: { id: userId }
   });
 
-  const [userAlbums, albumsError, albumsLoading] =
-    testApi.albums.getByUser.useHook({
-      path: { userId }
-    });
+  const [userAlbums, albumsError, albumsLoading] = testApi.albums.getByUser.useHook({
+    path: { userId }
+  });
 
   if (loading) return <div>Loading user details...</div>;
   if (error) return <div>Error loading user: {error.status}</div>;
@@ -195,21 +186,15 @@ function CreateUserForm({ onSuccess }: { onSuccess: () => void }) {
     if (response.status === "success") {
       onSuccess();
     } else {
-      setError(
-        response.status === "validation_error"
-          ? "Please check your input data"
-          : "Failed to create user"
-      );
+      setError(response.status === "validation_error" ? "Please check your input data" : "Failed to create user");
     }
 
     setIsSubmitting(false);
   };
 
-  const handleChange =
-    (field: keyof typeof formData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    };
+  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   return (
     <form className="create-user-form" onSubmit={handleSubmit}>
@@ -217,35 +202,17 @@ function CreateUserForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div className="form-group">
         <label>Name *</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={handleChange("name")}
-          required
-          disabled={isSubmitting}
-        />
+        <input type="text" value={formData.name} onChange={handleChange("name")} required disabled={isSubmitting} />
       </div>
 
       <div className="form-group">
         <label>Email *</label>
-        <input
-          type="email"
-          value={formData.email}
-          onChange={handleChange("email")}
-          required
-          disabled={isSubmitting}
-        />
+        <input type="email" value={formData.email} onChange={handleChange("email")} required disabled={isSubmitting} />
       </div>
 
       <div className="form-group">
         <label>Username *</label>
-        <input
-          type="text"
-          value={formData.username}
-          onChange={handleChange("username")}
-          required
-          disabled={isSubmitting}
-        />
+        <input type="text" value={formData.username} onChange={handleChange("username")} required disabled={isSubmitting} />
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -262,9 +229,7 @@ function CreateUserForm({ onSuccess }: { onSuccess: () => void }) {
 // Photo gallery component with pagination
 export function PhotoGallery() {
   const [currentPage, setCurrentPage] = React.useState(0);
-  const [selectedAlbumId, setSelectedAlbumId] = React.useState<number | null>(
-    null
-  );
+  const [selectedAlbumId, setSelectedAlbumId] = React.useState<number | null>(null);
   const photosPerPage = 20;
 
   const [photos, error, loading] = testApi.photos.getAll.useHook({
@@ -297,12 +262,7 @@ export function PhotoGallery() {
         <h2>Photo Gallery</h2>
 
         <div className="filters">
-          <select
-            value={selectedAlbumId || ""}
-            onChange={(e) =>
-              handleAlbumFilter(e.target.value ? Number(e.target.value) : null)
-            }
-          >
+          <select value={selectedAlbumId || ""} onChange={(e) => handleAlbumFilter(e.target.value ? Number(e.target.value) : null)}>
             <option value="">All Albums</option>
             {albums?.map((album) => (
               <option key={album.id} value={album.id}>
@@ -326,19 +286,13 @@ export function PhotoGallery() {
       </div>
 
       <div className="pagination">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 0}
-        >
+        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
           Previous
         </button>
 
         <span>Page {currentPage + 1}</span>
 
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={photos.length < photosPerPage}
-        >
+        <button onClick={() => handlePageChange(currentPage + 1)} disabled={photos.length < photosPerPage}>
           Next
         </button>
       </div>
@@ -348,10 +302,9 @@ export function PhotoGallery() {
 
 // Comments management with real-time updates
 export function CommentsManager({ postId }: { postId: number }) {
-  const [comments, error, loading, refresh] =
-    testApi.comments.getByPost.useHook({
-      path: { postId }
-    });
+  const [comments, error, loading, refresh] = testApi.comments.getByPost.useHook({
+    path: { postId }
+  });
 
   const [newComment, setNewComment] = React.useState({
     name: "",
@@ -405,9 +358,7 @@ export function CommentsManager({ postId }: { postId: number }) {
           type="text"
           placeholder="Your name"
           value={newComment.name}
-          onChange={(e) =>
-            setNewComment((prev) => ({ ...prev, name: e.target.value }))
-          }
+          onChange={(e) => setNewComment((prev) => ({ ...prev, name: e.target.value }))}
           required
           disabled={isSubmitting}
         />
@@ -416,9 +367,7 @@ export function CommentsManager({ postId }: { postId: number }) {
           type="email"
           placeholder="Your email"
           value={newComment.email}
-          onChange={(e) =>
-            setNewComment((prev) => ({ ...prev, email: e.target.value }))
-          }
+          onChange={(e) => setNewComment((prev) => ({ ...prev, email: e.target.value }))}
           required
           disabled={isSubmitting}
         />
@@ -426,9 +375,7 @@ export function CommentsManager({ postId }: { postId: number }) {
         <textarea
           placeholder="Your comment"
           value={newComment.body}
-          onChange={(e) =>
-            setNewComment((prev) => ({ ...prev, body: e.target.value }))
-          }
+          onChange={(e) => setNewComment((prev) => ({ ...prev, body: e.target.value }))}
           required
           disabled={isSubmitting}
           rows={3}
